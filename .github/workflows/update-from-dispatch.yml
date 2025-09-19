@@ -2,10 +2,10 @@ name: Update Content from Backend Dispatch
 
 on:
   repository_dispatch:
-    types: [daily-updated]  # 响应后端触发的事件
-  workflow_dispatch:  # 允许手动触发
+    types: [daily-updated]
+  workflow_dispatch:
   schedule:
-    - cron: '30 0 * * *'  # 每天北京时间8:30自动检查更新
+    - cron: '30 0 * * *'
 
 env:
   TZ: Asia/Shanghai
@@ -20,70 +20,92 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
 
-      # 拉取源仓库的最新内容
       - name: Clone source repository
         uses: actions/checkout@v4
         with:
-          repository: 'april8000/ai-insight-daily-token'  # ✅ 修正仓库名称
-          ref: 'main'  # 根据您的实际分支调整
+          repository: 'april8000/ai-insight-daily-token'
+          ref: 'main'
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 检查是否有新内容
       - name: Check for new content
         id: check-updates
         run: |
           echo "🔍 检查源仓库中的新内容..."
           
+          has_updates=false
+          latest_date=""
+          year_month=""
+          
           if [ -d "source-repo/daily" ]; then
-            # 查找最近3天的文件，以防错过
-            has_updates=false
+            echo "📁 源仓库daily目录存在，开始检查文件..."
+            
+            # 查找最近3天的文件
             for i in 0 1 2; do
               CHECK_DATE=$(date -d "-$i days" +%Y-%m-%d)
-              echo "检查日期: $CHECK_DATE"
+              YEAR_MONTH=$(date -d "-$i days" +%Y-%m)
+              echo "检查日期: $CHECK_DATE (年月: $YEAR_MONTH)"
               
               if [ -f "source-repo/daily/${CHECK_DATE}.md" ]; then
-                YEAR_MONTH=$(date -d "-$i days" +%Y-%m)
+                echo "✅ 找到源文件: source-repo/daily/${CHECK_DATE}.md"
                 
-                # 检查目标文件是否已存在且内容相同
+                # 检查目标文件是否已存在
                 TARGET_FILE="content/cn/${YEAR_MONTH}/${CHECK_DATE}.md"
+                echo "检查目标文件: $TARGET_FILE"
                 
                 if [ ! -f "$TARGET_FILE" ]; then
-                  echo "找到新文件: ${CHECK_DATE}.md"
-                  echo "has_updates=true" >> $GITHUB_OUTPUT
-                  echo "latest_date=${CHECK_DATE}" >> $GITHUB_OUTPUT
-                  echo "year_month=${YEAR_MONTH}" >> $GITHUB_OUTPUT
+                  echo "🆕 目标文件不存在，需要创建: ${TARGET_FILE}"
                   has_updates=true
+                  latest_date=$CHECK_DATE
+                  year_month=$YEAR_MONTH
                   break
                 else
-                  echo "文件已存在: $TARGET_FILE"
+                  echo "ℹ️ 目标文件已存在: $TARGET_FILE"
+                  # 可以进一步比较内容差异
+                  SOURCE_SIZE=$(wc -c < "source-repo/daily/${CHECK_DATE}.md")
+                  TARGET_SIZE=$(wc -c < "$TARGET_FILE")
+                  echo "源文件大小: ${SOURCE_SIZE} bytes, 目标文件大小: ${TARGET_SIZE} bytes"
+                  
+                  if [ "$SOURCE_SIZE" -ne "$TARGET_SIZE" ]; then
+                    echo "📝 文件大小不同，需要更新"
+                    has_updates=true
+                    latest_date=$CHECK_DATE
+                    year_month=$YEAR_MONTH
+                    break
+                  fi
                 fi
               else
-                echo "文件不存在: source-repo/daily/${CHECK_DATE}.md"
+                echo "❌ 源文件不存在: source-repo/daily/${CHECK_DATE}.md"
               fi
             done
             
-            if [ "$has_updates" = "false" ]; then
-              echo "没有发现新内容或更新"
+            # 输出结果
+            if [ "$has_updates" = true ]; then
+              echo "✅ 发现需要更新的内容!"
+              echo "latest_date=${latest_date}"
+              echo "year_month=${year_month}"
+              echo "has_updates=true" >> $GITHUB_OUTPUT
+              echo "latest_date=${latest_date}" >> $GITHUB_OUTPUT
+              echo "year_month=${year_month}" >> $GITHUB_OUTPUT
+            else
+              echo "ℹ️ 没有发现新内容或更新"
               echo "has_updates=false" >> $GITHUB_OUTPUT
             fi
           else
             echo "❌ 源仓库中没有daily目录"
-            # 列出源仓库的目录结构用于调试
-            echo "源仓库目录结构:"
-            ls -la source-repo/ || echo "无法列出目录"
+            ls -la source-repo/ || echo "无法列出源仓库目录"
             echo "has_updates=false" >> $GITHUB_OUTPUT
           fi
 
-      # 处理并转换内容格式
       - name: Process and convert content
         if: steps.check-updates.outputs.has_updates == 'true'
         run: |
           LATEST_DATE=${{ steps.check-updates.outputs.latest_date }}
           YEAR_MONTH=${{ steps.check-updates.outputs.year_month }}
           
-          echo "📝 处理日期: ${LATEST_DATE}"
-          echo "📁 目标目录: ${YEAR_MONTH}"
+          echo "📝 开始处理内容..."
+          echo "处理日期: ${LATEST_DATE}"
+          echo "目标目录: ${YEAR_MONTH}"
           
           # 确保目录存在
           mkdir -p "content/cn/${YEAR_MONTH}"
@@ -94,11 +116,13 @@ jobs:
           if [ -f "source-repo/daily/${LATEST_DATE}.md" ]; then
             echo "🔄 处理中文版本..."
             
+            TARGET_FILE="content/cn/${YEAR_MONTH}/${LATEST_DATE}.md"
+            
             # 生成Hugo Front Matter
-            cat > "content/cn/${YEAR_MONTH}/${LATEST_DATE}.md" << 'EOF'
+            cat > "$TARGET_FILE" << EOF
 ---
-title: "AI洞察日报 - REPLACE_DATE"
-date: REPLACE_DATET08:00:00+08:00
+title: "AI洞察日报 - ${LATEST_DATE}"
+date: ${LATEST_DATE}T08:00:00+08:00
 draft: false
 tags: ["AI", "人工智能", "技术", "日报"]
 categories: ["AI日报"]
@@ -107,72 +131,83 @@ weight: 1
 
 EOF
             
-            # 替换日期占位符
-            sed -i "s/REPLACE_DATE/${LATEST_DATE}/g" "content/cn/${YEAR_MONTH}/${LATEST_DATE}.md"
-            
             # 添加原始内容
-            tail -n +2 "source-repo/daily/${LATEST_DATE}.md" >> "content/cn/${YEAR_MONTH}/${LATEST_DATE}.md"
+            cat "source-repo/daily/${LATEST_DATE}.md" >> "$TARGET_FILE"
             
-            echo "✅ 中文版本已处理: content/cn/${YEAR_MONTH}/${LATEST_DATE}.md"
+            echo "✅ 中文版本已处理: $TARGET_FILE"
+            echo "文件大小: $(wc -c < "$TARGET_FILE") bytes"
+          else
+            echo "❌ 源文件不存在: source-repo/daily/${LATEST_DATE}.md"
           fi
 
-      # 更新索引文件
       - name: Update index files
         if: steps.check-updates.outputs.has_updates == 'true'
         run: |
           YEAR_MONTH=${{ steps.check-updates.outputs.year_month }}
           
           # 更新月份索引文件
-          if [ ! -f "content/cn/${YEAR_MONTH}/_index.md" ]; then
-            cat > "content/cn/${YEAR_MONTH}/_index.md" << 'EOF'
+          INDEX_FILE="content/cn/${YEAR_MONTH}/_index.md"
+          if [ ! -f "$INDEX_FILE" ]; then
+            echo "📄 创建月份索引文件: $INDEX_FILE"
+            cat > "$INDEX_FILE" << EOF
 ---
-title: "REPLACE_YEAR_MONTH AI日报"
-date: REPLACE_YEAR_MONTH-01T00:00:00+08:00
+title: "${YEAR_MONTH} AI日报"
+date: ${YEAR_MONTH}-01T00:00:00+08:00
 type: docs
 weight: 1
 ---
 
-# REPLACE_YEAR_MONTH AI洞察日报
+# ${YEAR_MONTH} AI洞察日报
 
 本月的AI行业动态和技术趋势汇总。
 
 EOF
-            # 替换年月占位符
-            sed -i "s/REPLACE_YEAR_MONTH/${YEAR_MONTH}/g" "content/cn/${YEAR_MONTH}/_index.md"
+            echo "✅ 月份索引文件已创建"
+          else
+            echo "ℹ️ 月份索引文件已存在: $INDEX_FILE"
           fi
 
-      # 提交更改
       - name: Commit and push changes
         if: steps.check-updates.outputs.has_updates == 'true'
         run: |
+          echo "📤 准备提交更改..."
+          
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # 显示待提交的文件
+          echo "待提交的文件:"
+          git status --porcelain
           
           git add .
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🤖 自动更新AI日报内容 - ${{ steps.check-updates.outputs.latest_date }}"
+            echo "✅ 发现更改，准备提交..."
+            git commit -m "🤖 自动更新AI日报内容 - ${{ steps.check-updates.outputs.latest_date }}
+
+            - 来源: april8000/ai-insight-daily-token
+            - 日期: ${{ steps.check-updates.outputs.latest_date }}
+            - 触发方式: ${{ github.event_name }}
+            "
             git push
-            echo "✅ 内容已更新并推送到仓库"
+            echo "🎉 内容已更新并推送到仓库!"
           fi
 
-      # 调试信息
-      - name: Debug information
+      - name: Summary
         if: always()
         run: |
-          echo "🔍 调试信息:"
+          echo "📊 执行总结:"
           echo "工作流触发方式: ${{ github.event_name }}"
-          echo "当前分支: ${{ github.ref }}"
-          echo "源仓库检查结果: ${{ steps.check-updates.outputs.has_updates }}"
+          echo "检查结果: ${{ steps.check-updates.outputs.has_updates }}"
           
-          if [ -d "source-repo" ]; then
-            echo "源仓库根目录内容:"
-            ls -la source-repo/
-            if [ -d "source-repo/daily" ]; then
-              echo "daily目录内容:"
-              ls -la source-repo/daily/ | head -10
-            fi
+          if [ "${{ steps.check-updates.outputs.has_updates }}" == "true" ]; then
+            echo "✅ 成功更新内容!"
+            echo "更新日期: ${{ steps.check-updates.outputs.latest_date }}"
+            echo "目标目录: content/cn/${{ steps.check-updates.outputs.year_month }}/"
           else
-            echo "❌ 源仓库目录不存在"
+            echo "ℹ️ 没有需要更新的内容"
           fi
+          
+          echo "当前仓库文件结构:"
+          find content -name "*.md" -type f | head -10 || echo "content目录不存在或为空"
