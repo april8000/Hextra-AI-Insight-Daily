@@ -41,7 +41,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.131.0
+      HUGO_VERSION: 0.139.0  # 🔧 使用最新版本的Hugo
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,10 +65,29 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Setup Hugo
+      - name: Setup Hugo (Latest Version)
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+          echo "=== 安装最新版Hugo ==="
+          
+          # 删除任何现有的Hugo
+          sudo apt-get remove hugo -y || true
+          
+          # 下载并安装最新的Hugo Extended版本
+          HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          echo "下载Hugo: $HUGO_URL"
+          
+          wget -O hugo.tar.gz "$HUGO_URL"
+          tar -xzf hugo.tar.gz
+          sudo mv hugo /usr/local/bin/
+          sudo chmod +x /usr/local/bin/hugo
+          
+          # 验证Hugo版本
+          echo "=== Hugo版本验证 ==="
+          hugo version
+          
+          # 检查是否支持try函数
+          echo "=== 测试Hugo功能 ==="
+          hugo env
       
       - name: Download and setup Hextra theme traditionally
         run: |
@@ -78,21 +97,15 @@ jobs:
           mkdir -p themes
           cd themes
           
-          # 下载Hextra主题
-          git clone https://github.com/imfing/hextra.git hextra
+          # 下载Hextra主题的最新稳定版本
+          echo "下载Hextra主题..."
+          git clone --depth 1 https://github.com/imfing/hextra.git hextra
+          
+          echo "=== 检查主题目录结构 ==="
+          ls -la hextra/
+          ls -la hextra/layouts/ || echo "layouts目录不存在"
+          
           cd ..
-          
-          echo "=== 检查主题目录 ==="
-          ls -la themes/
-          ls -la themes/hextra/ || echo "Hextra theme directory not found"
-          
-          # 检查文件结构
-          echo "=== 检查文件结构 ==="
-          ls -la
-          echo ""
-          echo "=== Hugo版本信息 ==="
-          hugo version
-          echo ""
           
           # 确保内容目录存在
           if [ ! -d "content" ]; then
@@ -100,6 +113,9 @@ jobs:
             mkdir -p content
             echo '---\ntitle: "AI洞察日报"\n---\n\n# AI洞察日报\n\n欢迎访问AI洞察日报！\n' > content/_index.md
           fi
+          
+          echo "=== 文件结构检查完成 ==="
+          ls -la
       
       - name: Build with Hugo
         env:
@@ -108,19 +124,31 @@ jobs:
         run: |
           echo "=== 开始构建Hugo站点 ==="
           
+          # 检查配置文件
+          echo "=== Hugo配置检查 ==="
+          hugo config || echo "配置检查失败"
+          
+          echo "=== 详细构建过程 ==="
           hugo \
             --gc --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/" \
-            --verbose
+            --verbose \
+            --logLevel info
           
           echo "=== 构建完成，检查输出 ==="
-          ls -la public/ || echo "Public directory not found"
+          if [ -d "public" ]; then
+            echo "public目录内容："
+            ls -la public/
+            echo "public目录大小："
+            du -sh public/
+          else
+            echo "Error: public目录不存在"
+            exit 1
+          fi
           
-          # 检查public目录是否有内容
-          if [ ! -d "public" ] || [ -z "$(ls -A public)" ]; then
-            echo "Error: public directory is empty or doesn't exist"
-            echo "=== Hugo配置调试信息 ==="
-            hugo config
+          # 检查是否有内容
+          if [ -z "$(ls -A public)" ]; then
+            echo "Error: public目录为空"
             exit 1
           fi
           
