@@ -1,103 +1,51 @@
 # Hugo configuration file
 baseURL: https://april8000.github.io/Hextra-AI-Insight-Daily/
-title: 何夕2077的AI资讯日报 | 精选AI新闻与工具 | 洞悉AI前沿动态
+title: AI洞察日报 - april8000
 
-timezone: Asia/Shanghai
-enableRobotsTXT: true
-enableGitInfo: true
-enableEmoji: true
-hasCJKLanguage: true
-enableInlineShortcodes: true
-
-# 指定主题名称（重要！）
+# 使用传统主题方式
 theme: hextra
 
-services:  
-  googleAnalytics:
-    ID: "G-SECWWMY8WQ"
-
-# import hextra as module
-module:
-  imports:
-    - path: github.com/imfing/hextra
+enableEmoji: true
+enableGitInfo: true
+hasCJKLanguage: true
 
 markup:
-  # allow raw html
   goldmark:
     renderer:
       unsafe: true
-
-  # enable hextra syntax highlight
   highlight:
     noClasses: false
 
 menu:
   main:
-    - identifier: search
-      name: 搜索
-      weight: 10
-      params:
-        type: search
-    - identifier: documentation
-      name: AI日报
+    - name: AI日报
       pageRef: /
       weight: 1
-    - identifier: about      
-      name: 关于我 ↗
-      url: "https://github.com/april8000"
+    - name: 关于
+      pageRef: /about
       weight: 2
-    - identifier: github   
-      name: GitHub
-      weight: 3
+    - name: GitHub
       url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
+      weight: 3
       params:
         icon: github
+    - name: Search
+      weight: 4
+      params:
+        type: search
 
 params:
-  description: 个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态
-  
-  author:
-    name: "april8000 AI洞察日报"
-    bio: "每日AI资讯整理"
-    email: "your-email@example.com"
-    website: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
-    social:
-      - name: "GitHub"
-        url: "https://github.com/april8000"
-        
-  publisher:
-    type: "Person" 
-    name: "april8000 AI洞察日报"
-    url: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
-    sameAs:
-      - "https://github.com/april8000"
-      
-  displayUpdatedDate: true
-  dateFormat: "2006/01/02 15:04:05"
-
   navbar:
-    displayTitle: false
-    displayLogo: true
+    displayTitle: true
+    displayLogo: false
 
   footer:
     displayCopyright: false
-    displayPoweredBy: false
+    displayPoweredBy: true
 
-  page:
-    # full (100%), wide (90rem), normal (1280px)
-    width: wide
-
-  # 搜索
   search:
     enable: true
     type: flexsearch
-    flexsearch:
-      # 按以下内容索引页面：content | summary | heading | title
-      index: content
-
-  comments:
-    enable: false
-    type: giscus
 
 defaultContentLanguage: zh
 languages:
@@ -106,8 +54,3 @@ languages:
     contentDir: content/cn
     languageName: 简体中文
     weight: 1
-  en:
-    contentDir: content/en
-    languageName: English
-    title: AI Daily Insights
-    weight: 2
