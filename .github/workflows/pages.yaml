@@ -70,30 +70,29 @@ jobs:
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
       
-      - name: Verify files and initialize Hugo modules
+      - name: Download and setup Hextra theme traditionally
         run: |
+          echo "=== 设置传统主题目录 ==="
+          
+          # 创建themes目录并下载Hextra主题
+          mkdir -p themes
+          cd themes
+          
+          # 下载Hextra主题
+          git clone https://github.com/imfing/hextra.git hextra
+          cd ..
+          
+          echo "=== 检查主题目录 ==="
+          ls -la themes/
+          ls -la themes/hextra/ || echo "Hextra theme directory not found"
+          
+          # 检查文件结构
           echo "=== 检查文件结构 ==="
           ls -la
-          echo ""
-          echo "=== 检查Go模块文件 ==="
-          cat go.mod || echo "go.mod not found"
-          echo ""
-          cat go.sum || echo "go.sum not found"
           echo ""
           echo "=== Hugo版本信息 ==="
           hugo version
           echo ""
-          echo "=== 初始化Hugo模块 ==="
-          
-          # 强制重新初始化模块
-          go mod download
-          go mod tidy
-          hugo mod clean
-          hugo mod download
-          hugo mod tidy
-          
-          echo "=== 检查模块状态 ==="
-          hugo mod graph || echo "Hugo模块图生成失败"
           
           # 确保内容目录存在
           if [ ! -d "content" ]; then
