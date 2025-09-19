@@ -1,0 +1,104 @@
+# Hugo configuration file
+baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
+languageCode: "zh-cn"
+title: "AI洞察日报"
+theme: "hextra"
+
+enableRobotsTXT: true
+enableGitInfo: true
+enableEmoji: true
+hasCJKLanguage: true
+
+services:
+  googleAnalytics:
+    ID: ""
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+    lineNos: true
+    lineNumbersInTable: false
+
+menu:
+  main:
+    - identifier: docs
+      name: 日报
+      pageRef: /docs
+      weight: 10
+    - identifier: about
+      name: 关于
+      pageRef: /about
+      weight: 20
+    - name: Search
+      weight: 30
+      params:
+        type: search
+    - name: GitHub
+      weight: 40
+      url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
+      params:
+        icon: github
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+params:
+  description: "AI洞察日报 - 每日精选AI新闻与工具"
+  
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/logo.svg
+      dark: images/logo-dark.svg
+      width: 40
+      height: 40
+      link: /
+    width: wide
+
+  page:
+    width: wide
+
+  footer:
+    displayCopyright: true
+    displayPoweredBy: true
+    width: normal
+
+  displayUpdatedDate: true
+  dateFormat: "January 2, 2006"
+
+  search:
+    enable: true
+    type: flexsearch
+
+    flexsearch:
+      index: content
+      tokenize: forward
+
+  editPage:
+    enable: false
+
+  blog:
+    list:
+      displayTags: true
+      subtitle: "最新AI行业动态和技术趋势"
+
+  comments:
+    enable: false
+
+defaultContentLanguage: zh-cn
+languages:
+  zh-cn:
+    languageName: 中文
+    languageDirection: ltr
+    title: AI洞察日报
+    weight: 1
+  en:
+    languageName: English
+    languageDirection: ltr
+    title: AI Insight Daily
+    weight: 2
