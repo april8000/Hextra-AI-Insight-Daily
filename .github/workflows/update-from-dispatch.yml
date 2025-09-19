@@ -49,8 +49,8 @@ jobs:
                 echo "处理文件: $filename"
                 
                 # 提取日期（假设文件名格式为YYYY-MM-DD.md）
-                if [[ $filename =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2})\.md$ ]]; then
-                  file_date="${BASH_REMATCH[1]}"
+                if echo "$filename" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.md$'; then
+                  file_date=$(echo "$filename" | sed 's/\.md$//')
                   year_month="${file_date:0:7}"  # 提取YYYY-MM部分
                   
                   echo "文件日期: $file_date, 年月: $year_month"
@@ -82,18 +82,21 @@ jobs:
                   if [ "$need_update" = true ]; then
                     echo "🔄 处理文件: $source_file -> $target_file"
                     
-                    # 生成Hugo Front Matter
-                    cat > "$target_file" << EOF
+                    # 生成Hugo Front Matter - 使用不同的分隔符
+                    cat > "$target_file" << 'FRONTMATTER'
 ---
-title: "AI洞察日报 - ${file_date}"
-date: ${file_date}T08:00:00+08:00
+title: "AI洞察日报 - REPLACE_DATE"
+date: REPLACE_DATET08:00:00+08:00
 draft: false
 tags: ["AI", "人工智能", "技术", "日报"]
 categories: ["AI日报"]
 weight: 1
 ---
 
-EOF
+FRONTMATTER
+                    
+                    # 替换日期占位符
+                    sed -i "s/REPLACE_DATE/${file_date}/g" "$target_file"
                     
                     # 添加原始内容
                     cat "$source_file" >> "$target_file"
@@ -105,19 +108,21 @@ EOF
                     # 创建月份索引文件（如果不存在）
                     index_file="$target_dir/_index.md"
                     if [ ! -f "$index_file" ]; then
-                      cat > "$index_file" << EOF
+                      cat > "$index_file" << 'INDEXFILE'
 ---
-title: "${year_month} AI日报"
-date: ${year_month}-01T00:00:00+08:00
+title: "REPLACE_YEAR_MONTH AI日报"
+date: REPLACE_YEAR_MONTH-01T00:00:00+08:00
 type: docs
 weight: 1
 ---
 
-# ${year_month} AI洞察日报
+# REPLACE_YEAR_MONTH AI洞察日报
 
 本月的AI行业动态和技术趋势汇总。
 
-EOF
+INDEXFILE
+                      # 替换年月占位符
+                      sed -i "s/REPLACE_YEAR_MONTH/${year_month}/g" "$index_file"
                       echo "📄 创建索引文件: $index_file"
                     fi
                   fi
