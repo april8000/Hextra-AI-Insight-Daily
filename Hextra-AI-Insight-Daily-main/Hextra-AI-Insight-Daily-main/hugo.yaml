@@ -1,4 +1,5 @@
 # Hugo configuration file
+baseURL: https://april8000.github.io/Hextra-AI-Insight-Daily/
 title: 何夕2077的AI资讯日报 | 精选AI新闻与工具 | 洞悉AI前沿动态
 
 timezone: Asia/Shanghai
