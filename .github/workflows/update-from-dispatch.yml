@@ -44,14 +44,13 @@ jobs:
             # 遍历所有source-repo/daily中的.md文件
             for source_file in source-repo/daily/*.md; do
               if [ -f "$source_file" ]; then
-                # 提取文件名（不含路径）
                 filename=$(basename "$source_file")
                 echo "处理文件: $filename"
                 
                 # 提取日期（假设文件名格式为YYYY-MM-DD.md）
                 if echo "$filename" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.md$'; then
                   file_date=$(echo "$filename" | sed 's/\.md$//')
-                  year_month="${file_date:0:7}"  # 提取YYYY-MM部分
+                  year_month="${file_date:0:7}"
                   
                   echo "文件日期: $file_date, 年月: $year_month"
                   
@@ -67,12 +66,10 @@ jobs:
                     echo "✅ 新文件，需要创建: $target_file"
                     need_update=true
                   else
-                    # 比较文件大小
                     source_size=$(wc -c < "$source_file")
                     target_size=$(wc -c < "$target_file")
                     if [ "$source_size" -ne "$target_size" ]; then
                       echo "📝 文件大小不同，需要更新: $target_file"
-                      echo "源文件: ${source_size} bytes, 目标文件: ${target_size} bytes"
                       need_update=true
                     else
                       echo "ℹ️ 文件已存在且大小相同: $target_file"
@@ -82,21 +79,16 @@ jobs:
                   if [ "$need_update" = true ]; then
                     echo "🔄 处理文件: $source_file -> $target_file"
                     
-                    # 生成Hugo Front Matter - 使用不同的分隔符
-                    cat > "$target_file" << 'FRONTMATTER'
----
-title: "AI洞察日报 - REPLACE_DATE"
-date: REPLACE_DATET08:00:00+08:00
-draft: false
-tags: ["AI", "人工智能", "技术", "日报"]
-categories: ["AI日报"]
-weight: 1
----
-
-FRONTMATTER
-                    
-                    # 替换日期占位符
-                    sed -i "s/REPLACE_DATE/${file_date}/g" "$target_file"
+                    # 直接写入Front Matter，避免HERE文档
+                    echo "---" > "$target_file"
+                    echo "title: \"AI洞察日报 - ${file_date}\"" >> "$target_file"
+                    echo "date: ${file_date}T08:00:00+08:00" >> "$target_file"
+                    echo "draft: false" >> "$target_file"
+                    echo "tags: [\"AI\", \"人工智能\", \"技术\", \"日报\"]" >> "$target_file"
+                    echo "categories: [\"AI日报\"]" >> "$target_file"
+                    echo "weight: 1" >> "$target_file"
+                    echo "---" >> "$target_file"
+                    echo "" >> "$target_file"
                     
                     # 添加原始内容
                     cat "$source_file" >> "$target_file"
@@ -108,21 +100,17 @@ FRONTMATTER
                     # 创建月份索引文件（如果不存在）
                     index_file="$target_dir/_index.md"
                     if [ ! -f "$index_file" ]; then
-                      cat > "$index_file" << 'INDEXFILE'
----
-title: "REPLACE_YEAR_MONTH AI日报"
-date: REPLACE_YEAR_MONTH-01T00:00:00+08:00
-type: docs
-weight: 1
----
-
-# REPLACE_YEAR_MONTH AI洞察日报
-
-本月的AI行业动态和技术趋势汇总。
-
-INDEXFILE
-                      # 替换年月占位符
-                      sed -i "s/REPLACE_YEAR_MONTH/${year_month}/g" "$index_file"
+                      echo "---" > "$index_file"
+                      echo "title: \"${year_month} AI日报\"" >> "$index_file"
+                      echo "date: ${year_month}-01T00:00:00+08:00" >> "$index_file"
+                      echo "type: docs" >> "$index_file"
+                      echo "weight: 1" >> "$index_file"
+                      echo "---" >> "$index_file"
+                      echo "" >> "$index_file"
+                      echo "# ${year_month} AI洞察日报" >> "$index_file"
+                      echo "" >> "$index_file"
+                      echo "本月的AI行业动态和技术趋势汇总。" >> "$index_file"
+                      echo "" >> "$index_file"
                       echo "📄 创建索引文件: $index_file"
                     fi
                   fi
@@ -156,7 +144,6 @@ INDEXFILE
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 显示当前状态
           echo "当前git状态:"
           git status
           
@@ -168,13 +155,7 @@ INDEXFILE
             echo "ℹ️ 没有需要提交的更改"
           else
             echo "✅ 发现更改，准备提交..."
-            git commit -m "🤖 批量同步AI日报内容
-
-            - 来源: april8000/ai-insight-daily-token
-            - 处理文件数: ${{ steps.sync-content.outputs.files_processed }}
-            - 触发方式: ${{ github.event_name }}
-            - 同步时间: $(date '+%Y-%m-%d %H:%M:%S')
-            "
+            git commit -m "🤖 批量同步AI日报内容 - 处理文件数: ${{ steps.sync-content.outputs.files_processed }} - 触发方式: ${{ github.event_name }}"
             git push
             echo "🎉 内容已更新并推送到仓库!"
           fi
