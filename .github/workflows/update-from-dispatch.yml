@@ -28,9 +28,9 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup complete content structure with styles
+      - name: Setup complete content structure (Stable)
         run: |
-          echo "🎨 开始设置完整的内容结构和样式..."
+          echo "🎨 开始设置稳定的内容结构..."
           
           # 确保所有必要目录存在
           mkdir -p content/cn
@@ -61,10 +61,27 @@ jobs:
             position: relative;
           }
           
+          .content blockquote::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff9900, #ffaa33, #ff9900);
+            animation: shimmer 2s infinite;
+          }
+          
+          @keyframes shimmer {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+          }
+          
           .content blockquote p {
             margin: 0 !important;
             color: #ff9900 !important;
             font-weight: 500;
+            font-size: 0.95rem;
           }
           
           .content blockquote code {
@@ -73,6 +90,7 @@ jobs:
             padding: 2px 6px !important;
             border-radius: 4px !important;
             font-weight: 600 !important;
+            border: 1px solid rgba(255, 153, 0, 0.3) !important;
           }
           
           /* 3. 新闻条目美化 */
@@ -100,38 +118,76 @@ jobs:
             padding-bottom: 0.5rem;
             margin-top: 2rem !important;
             margin-bottom: 1rem !important;
+            position: relative;
+          }
+          
+          .content h3::before {
+            content: '🔥';
+            margin-right: 0.5rem;
           }
           
           /* 5. 图片样式 */
           .content img {
             margin: 1rem auto !important;
-            border-radius: 8px !important;
+            border-radius: 12px !important;
             max-width: 100% !important;
             height: auto !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+          }
+          
+          .content img:hover {
+            transform: scale(1.02) !important;
+            box-shadow: 0 12px 48px rgba(255, 153, 0, 0.2) !important;
           }
           
           /* 6. 链接样式 */
           .content a {
             color: #ff9900 !important;
             text-decoration: none !important;
+            border-bottom: 2px solid transparent !important;
+            transition: all 0.3s ease !important;
             font-weight: 500 !important;
           }
           
           .content a:hover {
             color: #ffaa33 !important;
-            text-decoration: underline !important;
+            border-bottom-color: #ff9900 !important;
+            background: rgba(255, 153, 0, 0.1) !important;
+            padding: 2px 4px !important;
+            border-radius: 4px !important;
           }
           
           /* 7. 强调文本 */
           .content strong {
             color: #ff9900 !important;
+            font-weight: 700 !important;
             background: rgba(255, 153, 0, 0.1) !important;
             padding: 1px 3px !important;
             border-radius: 3px !important;
           }
           
-          /* 8. 暗色主题优化 */
+          /* 8. 代码美化 */
+          .content code {
+            background: rgba(255, 153, 0, 0.1) !important;
+            color: #ff6600 !important;
+            padding: 2px 6px !important;
+            border-radius: 6px !important;
+            font-size: 0.9em !important;
+            font-weight: 500 !important;
+          }
+          
+          /* 9. 暗色主题优化 */
+          html.dark .content {
+            color: #f0f0f0 !important;
+          }
+          
+          html.dark .content h2,
+          html.dark .content h3,
+          html.dark .content h4 {
+            color: #ff9900 !important;
+          }
+          
           html.dark .content ol li,
           html.dark .content ul li {
             background: rgba(255, 153, 0, 0.08) !important;
@@ -142,20 +198,26 @@ jobs:
           html.dark .content ul li:hover {
             background: rgba(255, 153, 0, 0.15) !important;
           }
+          
+          /* 10. 响应式优化 */
+          @media (max-width: 768px) {
+            .content {
+              padding: 1rem !important;
+            }
+            
+            .content ol li,
+            .content ul li {
+              padding: 0.75rem !important;
+              margin-bottom: 1rem !important;
+            }
+            
+            .content blockquote {
+              padding: 0.75rem 1rem !important;
+            }
+          }
           EOF
           
           echo "✅ 自定义CSS文件已创建"
-          
-          # 创建go.mod文件
-          cat > go.mod << 'EOF'
-          module github.com/april8000/Hextra-AI-Insight-Daily
-          
-          go 1.21
-          
-          require github.com/imfing/hextra v0.11.0 // indirect
-          EOF
-          
-          echo "✅ go.mod文件已创建"
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
@@ -277,13 +339,12 @@ jobs:
             fi
           done
           
-          echo "--- 完整设置完成 ---"
+          echo "--- 稳定设置完成 ---"
           
           # 显示文件统计
           echo "=== 文件统计 ==="
           echo "📄 内容文件: $(find content -name "*.md" -type f | wc -l)"
           echo "🎨 样式文件: $(find assets -name "*.css" -type f | wc -l)"
-          echo "📦 配置文件: $(ls -1 *.mod *.yaml 2>/dev/null | wc -l)"
 
       - name: Commit and push changes
         run: |
@@ -294,19 +355,19 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🎨 完整修复：添加自定义样式和完整内容 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🎨 稳定版本：无模块依赖的完整内容 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 完整内容和样式已推送"
+            echo "✅ 稳定版本内容已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 完整修复完成！"
-          echo "✅ 修复内容:"
-          echo "   🎨 自定义CSS样式已添加"
-          echo "   📦 Go模块配置已创建"
-          echo "   📰 完整日报内容已处理"
-          echo "   🏷️ 智能分类标签已生成"
-          echo "   📱 响应式布局已优化"
+          echo "🎉 稳定版本更新完成！"
+          echo "✅ 特性:"
+          echo "   🎨 自定义CSS样式（无模块依赖）"
+          echo "   📰 完整日报内容展示"
+          echo "   🏷️ 智能分类标签系统"
+          echo "   📱 响应式布局优化"
+          echo "   ⚡ 稳定的构建流程"
           echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
