@@ -28,9 +28,9 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Process content for Hextra
+      - name: Process content with enhanced tags
         run: |
-          echo "Processing content..."
+          echo "🔍 Processing content with enhanced tags..."
           
           # Create target directory
           mkdir -p content/cn
@@ -44,8 +44,13 @@ jobs:
           echo '# AI洞察日报' >> content/cn/_index.md
           echo '' >> content/cn/_index.md
           echo '欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '## 浏览内容' >> content/cn/_index.md
+          echo '- [📅 按日期浏览](/cn/)' >> content/cn/_index.md
+          echo '- [🏷️ 按标签浏览](/cn/tags/)' >> content/cn/_index.md
+          echo '- [📂 按分类浏览](/cn/categories/)' >> content/cn/_index.md
           
-          # Process daily files
+          # Process daily files with smart tags
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -59,21 +64,84 @@ jobs:
               
               echo "Processing file: ${FILENAME} to ${TARGET_FILE}"
               
-              # Generate Front Matter
+              # Read source content for tag analysis
+              CONTENT=$(cat "$SOURCE_FILE_PATH")
+              
+              # Generate smart tags based on content
+              TAGS='["AI", "人工智能", "技术", "日报"'
+              CATEGORIES='["AI日报"'
+              
+              # Add specific tags based on content analysis
+              if echo "$CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT"; then
+                TAGS="${TAGS}, \"OpenAI\", \"ChatGPT\""
+              fi
+              if echo "$CONTENT" | grep -qi "谷歌\|Google\|Gemini\|Bard"; then
+                TAGS="${TAGS}, \"Google\", \"谷歌\""
+                CATEGORIES="${CATEGORIES}, \"科技巨头\""
+              fi
+              if echo "$CONTENT" | grep -qi "微软\|Microsoft\|Copilot"; then
+                TAGS="${TAGS}, \"微软\", \"Microsoft\""
+                CATEGORIES="${CATEGORIES}, \"科技巨头\""
+              fi
+              if echo "$CONTENT" | grep -qi "Meta\|Facebook"; then
+                TAGS="${TAGS}, \"Meta\", \"Facebook\""
+                CATEGORIES="${CATEGORIES}, \"科技巨头\""
+              fi
+              if echo "$CONTENT" | grep -qi "自动驾驶\|无人驾驶"; then
+                TAGS="${TAGS}, \"自动驾驶\""
+                CATEGORIES="${CATEGORIES}, \"自动驾驶\""
+              fi
+              if echo "$CONTENT" | grep -qi "机器学习\|深度学习\|ML\|DL"; then
+                TAGS="${TAGS}, \"机器学习\", \"深度学习\""
+                CATEGORIES="${CATEGORIES}, \"机器学习\""
+              fi
+              if echo "$CONTENT" | grep -qi "芯片\|GPU\|CPU\|英伟达\|NVIDIA"; then
+                TAGS="${TAGS}, \"芯片\", \"硬件\""
+                CATEGORIES="${CATEGORIES}, \"硬件\""
+              fi
+              if echo "$CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元"; then
+                TAGS="${TAGS}, \"投资\", \"融资\""
+                CATEGORIES="${CATEGORIES}, \"商业\""
+              fi
+              if echo "$CONTENT" | grep -qi "开源\|GitHub\|代码"; then
+                TAGS="${TAGS}, \"开源\", \"GitHub\""
+                CATEGORIES="${CATEGORIES}, \"开源\""
+              fi
+              if echo "$CONTENT" | grep -qi "研究\|论文\|学术\|大学"; then
+                TAGS="${TAGS}, \"研究\", \"学术\""
+                CATEGORIES="${CATEGORIES}, \"研究\""
+              fi
+              if echo "$CONTENT" | grep -qi "机器人\|Robot"; then
+                TAGS="${TAGS}, \"机器人\""
+                CATEGORIES="${CATEGORIES}, \"机器人\""
+              fi
+              if echo "$CONTENT" | grep -qi "语言模型\|LLM\|大模型"; then
+                TAGS="${TAGS}, \"语言模型\", \"大模型\""
+                CATEGORIES="${CATEGORIES}, \"语言模型\""
+              fi
+              
+              TAGS="${TAGS}]"
+              CATEGORIES="${CATEGORIES}]"
+              
+              # Generate Front Matter with enhanced tags
               echo '---' > "$TARGET_FILE"
               echo "title: \"AI洞察日报 - ${DATE_PART}\"" >> "$TARGET_FILE"
               echo "date: ${DATE_PART}T08:00:00+08:00" >> "$TARGET_FILE"
               echo 'draft: false' >> "$TARGET_FILE"
-              echo 'tags: ["AI", "人工智能", "技术", "日报"]' >> "$TARGET_FILE"
-              echo 'categories: ["AI日报"]' >> "$TARGET_FILE"
+              echo "tags: ${TAGS}" >> "$TARGET_FILE"
+              echo "categories: ${CATEGORIES}" >> "$TARGET_FILE"
               echo 'type: docs' >> "$TARGET_FILE"
               echo 'weight: 1' >> "$TARGET_FILE"
+              echo "description: \"${DATE_PART}的AI行业动态、技术发展和重要资讯汇总\"" >> "$TARGET_FILE"
+              echo 'showTags: true' >> "$TARGET_FILE"
+              echo 'showCategories: true' >> "$TARGET_FILE"
+              echo 'showDate: true' >> "$TARGET_FILE"
               echo '---' >> "$TARGET_FILE"
               echo '' >> "$TARGET_FILE"
               
               # Add original content
               cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-              echo "File processed: ${TARGET_FILE}"
+              echo "✅ File processed with smart tags: ${TARGET_FILE}"
               
               # Create month index if not exists
               MONTH_INDEX="${TARGET_DIR}/_index.md"
@@ -83,21 +151,31 @@ jobs:
                 echo "date: ${YEAR_MONTH}-01T00:00:00+08:00" >> "$MONTH_INDEX"
                 echo 'type: docs' >> "$MONTH_INDEX"
                 echo 'weight: 1' >> "$MONTH_INDEX"
+                echo "description: \"${YEAR_MONTH}月份AI行业动态汇总\"" >> "$MONTH_INDEX"
                 echo '---' >> "$MONTH_INDEX"
                 echo '' >> "$MONTH_INDEX"
                 echo "# ${YEAR_MONTH} AI洞察日报" >> "$MONTH_INDEX"
                 echo '' >> "$MONTH_INDEX"
-                echo '本月的AI行业动态和技术趋势汇总。' >> "$MONTH_INDEX"
+                echo '本月的AI行业动态和技术趋势汇总，包括：' >> "$MONTH_INDEX"
+                echo '- 🔥 行业热点新闻' >> "$MONTH_INDEX"
+                echo '- 🛠️ 技术产品发布' >> "$MONTH_INDEX"
+                echo '- 📊 市场投资动态' >> "$MONTH_INDEX"
+                echo '- 🧠 学术研究进展' >> "$MONTH_INDEX"
+                echo '- 💡 开源项目推荐' >> "$MONTH_INDEX"
                 echo "Month index created: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "Content processing completed"
+          echo "--- Content processing with smart tags completed ---"
           
           # Show directory structure
           echo "=== Directory Structure ==="
           find content -type f -name "*.md" | head -10
+          
+          # Show tag statistics
+          echo "=== Tag Statistics ==="
+          echo "Total content files: $(find content/cn -name "*.md" -not -name "_index.md" | wc -l)"
 
       - name: Commit and push changes
         run: |
@@ -108,7 +186,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Auto sync AI daily content - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🏷️ Enhanced content sync with smart tags - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "Content synced and pushed to repository"
+            echo "Enhanced content synced and pushed to repository"
           fi
