@@ -1,222 +1,304 @@
 /* ==========================================================================
-   AI洞察日报 - 自定义样式
-   基于原作者项目的美化设计
+   AI洞察日报 - 增强视觉样式
+   解决内容显示和美观问题
    ========================================================================== */
 
-/* 1. 隐藏页面第一个h1标题，因为我们在Front Matter中已经定义了标题 */
+/* 1. 确保内容完整显示，不被截断 */
+.content {
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+.content article {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* 2. 隐藏页面第一个h1标题，因为我们在Front Matter中已经定义了标题 */
 h1:first-of-type {
   display: none;
 }
 
-/* 2. 统一代码字体 */
+/* 3. 统一代码字体 */
 code, kbd, samp, pre {
   font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,liberation mono,courier new,monospace;
 }
 
-/* 3. 图片样式优化 */
+/* 4. 增强的分类标签样式 */
+.content blockquote {
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.05));
+  border-left: 4px solid #ff9900;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.content blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff9900, #ffaa33, #ff9900);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.content blockquote p {
+  margin: 0 !important;
+  color: #ff9900 !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.content blockquote code {
+  background-color: rgba(255, 153, 0, 0.2) !important;
+  color: #ff6600 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 153, 0, 0.3) !important;
+}
+
+/* 5. 新闻内容区域美化 */
+.content h3 {
+  color: #ff9900 !important;
+  border-bottom: 2px solid rgba(255, 153, 0, 0.3);
+  padding-bottom: 0.5rem;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  position: relative;
+}
+
+.content h3::before {
+  content: '🔥';
+  margin-right: 0.5rem;
+}
+
+/* 6. 新闻条目美化 */
+.content ol li,
+.content ul li {
+  margin-bottom: 1.5rem !important;
+  padding: 1rem !important;
+  background: rgba(255, 153, 0, 0.03) !important;
+  border-radius: 8px !important;
+  border-left: 3px solid #ff9900 !important;
+  transition: all 0.3s ease !important;
+}
+
+.content ol li:hover,
+.content ul li:hover {
+  background: rgba(255, 153, 0, 0.08) !important;
+  transform: translateX(5px) !important;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2) !important;
+}
+
+/* 7. 图片样式优化 */
 .content :where(img):not(:where([class~=not-prose],[class~=not-prose] *)) {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: .375rem;
-  max-width: 100%;
-  min-width: 100%;
-  height: clamp(250px, 35vh, 500px);
-  object-fit: cover;
+  margin: 1rem auto !important;
+  border-radius: 12px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 
-.content table tbody tr td :where(img):not(:where([class~=not-prose],[class~=not-prose] *)){
-  height: auto;
+.content img:hover {
+  transform: scale(1.02) !important;
+  box-shadow: 0 12px 48px rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 4. 视频样式优化 */
+/* 8. 视频样式优化 */
 video {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  border-radius: .375rem;
-  max-width: 100%;
-  min-width: 100%;
+  margin: 1.5rem auto !important;
+  border-radius: 12px !important;
+  max-width: 100% !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 5. 换行优化 */
-br {
-    display: block;
-    content: "";
-    margin-top: 20px;
+/* 9. 链接样式增强 */
+.content a {
+  color: #ff9900 !important;
+  text-decoration: none !important;
+  border-bottom: 2px solid transparent !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
 }
 
-/* 6. 页脚样式优化 */
-footer .hx-max-w-screen-xl{
-  max-width: 100%;
+.content a:hover {
+  color: #ffaa33 !important;
+  border-bottom-color: #ff9900 !important;
+  background: rgba(255, 153, 0, 0.1) !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
 }
 
-.footer-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1.5rem 0.5rem;
-  width: 100%;
-  flex-direction: column;
+/* 10. 代码块美化 */
+.content code {
+  background: rgba(255, 153, 0, 0.1) !important;
+  color: #ff6600 !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+  font-size: 0.9em !important;
+  font-weight: 500 !important;
 }
 
-.footer-container {
-  text-align: center;
+.content pre {
+  background: #1a1a1a !important;
+  border: 1px solid #ff9900 !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  overflow-x: auto !important;
+  margin: 1.5rem 0 !important;
 }
 
-/* 7. 文本换行优化 */
-.content :where(p):not(:where([class~=not-prose],[class~=not-prose] *)) {
-  overflow-wrap: break-word;
-  word-break: break-word;
+.content pre code {
+  background: transparent !important;
+  color: #f0f0f0 !important;
+  padding: 0 !important;
 }
 
-.content :where(code):not(:where(.hextra-code-block code,[class~=not-prose],[class~=not-prose] *)) {
+/* 11. 强调文本美化 */
+.content strong {
+  color: #ff9900 !important;
+  font-weight: 700 !important;
+  background: rgba(255, 153, 0, 0.1) !important;
+  padding: 1px 3px !important;
+  border-radius: 3px !important;
+}
+
+/* 12. 表格美化 */
+.content table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin: 1.5rem 0 !important;
+  background: rgba(255, 153, 0, 0.02) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.content table th {
+  background: #ff9900 !important;
+  color: white !important;
+  padding: 1rem !important;
+  text-align: left !important;
+  font-weight: 600 !important;
+}
+
+.content table td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 153, 0, 0.2) !important;
+}
+
+.content table tr:hover {
+  background: rgba(255, 153, 0, 0.05) !important;
+}
+
+/* 13. 分隔线美化 */
+.content hr {
+  border: none !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, transparent, #ff9900, transparent) !important;
+  margin: 2rem 0 !important;
+}
+
+/* 14. 侧边栏美化 */
+.sidebar-container {
+  background: rgba(255, 153, 0, 0.02) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+}
+
+.sidebar-container a {
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+  padding: 0.5rem 0.75rem !important;
+  margin: 2px 0 !important;
+  display: block !important;
+}
+
+.sidebar-container a:hover {
+  background: rgba(255, 153, 0, 0.1) !important;
+  transform: translateX(5px) !important;
+}
+
+/* 15. 暗色主题优化 */
+html.dark .content {
+  color: #f0f0f0 !important;
+}
+
+html.dark .content h2,
+html.dark .content h3,
+html.dark .content h4 {
+  color: #ff9900 !important;
+}
+
+html.dark .content ol li,
+html.dark .content ul li {
+  background: rgba(255, 153, 0, 0.08) !important;
+  color: #f0f0f0 !important;
+}
+
+html.dark .content ol li:hover,
+html.dark .content ul li:hover {
+  background: rgba(255, 153, 0, 0.15) !important;
+}
+
+/* 16. 响应式优化 */
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem !important;
+  }
+  
+  .content ol li,
+  .content ul li {
+    padding: 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .content blockquote {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+/* 17. 加载动画 */
+.content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 18. 滚动条美化 */
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: rgba(255, 153, 0, 0.1);
   border-radius: 4px;
-  font-style: normal;
-  padding: 0.2em 0.4em;
-  font-size: 0.875em;
-  overflow-wrap: break-word;
-  word-break: break-word;
 }
 
-/* 8. 引用块中的链接隐藏（保持原作者的设计） */
-.content blockquote p a {
-    display: none;
-}
-
-/* ==========================================================================
-   暗色主题样式 - 橙色主题色调
-   ========================================================================== */
-
-/* 9. 核心色调定义 */
-html.dark {
-  --primary-hue: 36deg;
-  --primary-saturation: 100%;
-  --primary-lightness: 50%;
-}
-
-/* 10. 基础布局颜色 */
-.hextra-footer:is(html[class~=dark] *),
-.nav-container:is(html[class~=dark] *),
-body:is(html[class~=dark] *) {
-  background-color: #1c1c1c;
-}
-
-.nav-container-blur:is(html[class~=dark] *) {
-    background-color: rgba(28, 28, 28, 0.8) !important;
-}
-
-/* 11. 导航栏样式 */
-.nav-container a:is(html[class~=dark] *),
-.nav-container svg:is(html[class~=dark] *) {
-  color: #ffffff;
-  transition: color 0.2s ease-in-out;
-}
-
-.nav-container a:hover:is(html[class~=dark] *),
-.nav-container a:hover svg:is(html[class~=dark] *),
-.nav-container button:hover svg:is(html[class~=dark] *) {
-  color: #ff9900 !important;
-}
-
-.hamburger-menu:is(html[class~=dark] *) {
-  color: #ffffff;
-}
-.hamburger-menu:hover:is(html[class~=dark] *) {
-  color: #ff9900 !important;
-}
-
-/* 12. 代码样式美化 */
-.content :where(code):not(:where(.hextra-code-block code,[class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
-  background-color: #2a2a2a;
-  color: #ff9900;
-  border: 1px solid #444;
-}
-
-.hextra-code-block pre:is(html[class~=dark] *),
-.hextra-code-block .filename:is(html[class~=dark] *) {
-  border: 1px solid #444;
-}
-
-.hextra-code-block pre code span:is(html[class~=dark] *),
-.hextra-code-block pre code:is(html[class~=dark] *) {
-  font-style: normal !important;
-  color: #f0f0f0;
-}
-
-/* 13. 内容区域样式 */
-.content :where(a):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *),
-.content :where(blockquote):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
-  color: #ff9900;
-  border-left-color: #ff9900;
-}
-
-.content :where(a):not(:where([class~=not-prose],[class~=not-prose] *)):hover:is(html[class~=dark] *) {
-color: #fff;
-  text-decoration: underline;
-}
-
-.content :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
-  border-color: #444;
-}
-
-.content :where(h3):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
-    color: #f90;
-}
-
-/* 14. 组件样式 */
-.hextra-card:is(html[class~=dark] *) {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #f0f0f0;
-}
-
-.hextra-card:hover:is(html[class~=dark] *) {
-  border-color: #ff9900;
-  box-shadow: 0 0 15px rgba(255, 153, 0, 0.2);
-}
-
-/* 15. 侧边栏样式 */
-.sidebar-active-item:is(html[class~=dark] *) {
-  color: #ff9900 !important;
-  font-weight: bold;
-  background-color: rgba(255, 153, 0, 0.1);
+.content::-webkit-scrollbar-thumb {
+  background: #ff9900;
   border-radius: 4px;
 }
 
-.dark\:hover\:hx-bg-primary-100\/5:hover:is(html[class~=dark] *) {
-    background-color: rgba(255, 153, 0, 0.1);
-}
-
-.sidebar-container a:hover:is(html[class~=dark] *) {
-  color: #ff9900;
-}
-
-.sidebar-container a:is(html[class~=dark] *) {
-  color: #fff;
-}
-
-/* 16. 搜索样式 */
-.search-wrapper li .active:is(html[class~=dark] *) {
-    background-color: rgba(255, 153, 0, 0.15);
-}
-
-.search-wrapper .match:is(html[class~=dark] *) {
-    color: #ff9900;
-}
-
-.search-input:is(html[class~=dark] *) {
-  border-color: #444;
-}
-
-.search-input:focus:is(html[class~=dark] *) {
-  border-color: #ff9900;
-}
-
-/* 17. 强调文本样式 */
-strong:is(html[class~=dark] *) {
-    color: #f90;
-    padding: 3px;
+.content::-webkit-scrollbar-thumb:hover {
+  background: #ffaa33;
 }
