@@ -354,65 +354,53 @@ jobs:
               # 处理内容，确保链接完整，并按原作者格式分段
               PROCESSED_CONTENT="$ORIGINAL_CONTENT"
               
-              # 尝试将内容按原作者风格进行分类整理
-              if echo "$ORIGINAL_CONTENT" | grep -q "今日摘要\|AI资讯\|今日AI"; then
-                # 如果内容已有结构，保持原样
-                STRUCTURED_CONTENT="$PROCESSED_CONTENT"
-              else
-                # 如果内容没有明确结构，按原作者风格添加结构
-                STRUCTURED_CONTENT="### 今日摘要
-
-\`\`\`
-${DATE_PART}的AI行业动态汇总，包含最新产品发布、技术突破、行业投资等重要资讯。
-\`\`\`
-
-### AI产品与功能更新
-
-$PROCESSED_CONTENT"
-              fi
-              
               # 创建完整的文件内容（参考原作者格式）
-              cat > "$TARGET_FILE" << EOF
+              cat > "$TARGET_FILE" << 'CONTENT_EOF'
           ---
-          linkTitle: $(echo $DATE_PART | cut -c6-10)-日报
-          title: "AI洞察日报 - ${DATE_PART}"
-          date: ${DATE_PART}T08:00:00+08:00
+          linkTitle: DATEPART-日报
+          title: "AI洞察日报 - DATEPART"
+          date: DATEPARTT08:00:00+08:00
           draft: false
           weight: 1
           type: docs
           sidebar:
             open: true
-          description: "${DATE_PART}的AI行业动态、技术发展和重要资讯汇总"
+          description: "DATEPART的AI行业动态、技术发展和重要资讯汇总"
           breadcrumbs: false
           comments: true
           ---
           
-          ## AI洞察日报 ${DATE_PART}
+          ## AI洞察日报 DATEPART
           
-          > ${CATEGORY_TAGS} | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
+          > CATEGORYTAGS | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
-          ${STRUCTURED_CONTENT}
-          EOF
+          CONTENTHERE
+          CONTENT_EOF
+              
+              # 替换占位符
+              sed -i "s/DATEPART/${DATE_PART}/g" "$TARGET_FILE"
+              sed -i "s/CATEGORYTAGS/${CATEGORY_TAGS}/g" "$TARGET_FILE"
+              sed -i "s/CONTENTHERE/${PROCESSED_CONTENT}/g" "$TARGET_FILE"
               
               echo "✅ 原作者风格内容文件已创建: ${TARGET_FILE}"
               
               # 创建月份索引
               MONTH_INDEX="${TARGET_DIR}/_index.md"
               if [ ! -f "$MONTH_INDEX" ]; then
-                cat > "$MONTH_INDEX" << EOF
+                cat > "$MONTH_INDEX" << 'INDEX_EOF'
           ---
-          title: "${YEAR_MONTH} AI日报"
-          date: ${YEAR_MONTH}-01T00:00:00+08:00
+          title: "YEARMONTH AI日报"
+          date: YEARMONTH-01T00:00:00+08:00
           type: docs
           sidebar:
             open: true
           weight: 1
-          description: "${YEAR_MONTH}月份AI行业动态汇总"
+          description: "YEARMONTH月份AI行业动态汇总"
           ---
           
-          # ${YEAR_MONTH} AI洞察日报
+          # YEARMONTH AI洞察日报
           
-          > 📅 **${YEAR_MONTH}** | 🔥 **月度精选** | 📊 **数据汇总** | 🎯 **趋势分析**
+          > 📅 **YEARMONTH** | 🔥 **月度精选** | 📊 **数据汇总** | 🎯 **趋势分析**
           
           本月的AI行业动态和技术趋势汇总，精选重要资讯。
           
@@ -431,7 +419,10 @@ $PROCESSED_CONTENT"
           ---
           
           *点击左侧导航浏览本月各日的详细AI资讯内容*
-          EOF
+          INDEX_EOF
+                
+                # 替换占位符
+                sed -i "s/YEARMONTH/${YEAR_MONTH}/g" "$MONTH_INDEX"
                 echo "✅ 原作者风格月份索引已创建: ${MONTH_INDEX}"
               fi
             fi
@@ -453,15 +444,15 @@ $PROCESSED_CONTENT"
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🎨 原作者风格：深浅模式分离+智能分类系统 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🎨 修复语法错误：原作者风格配色+分类系统 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 原作者风格已推送"
+            echo "✅ 修复版已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 原作者风格配色和分类完成！"
+          echo "🎉 修复版原作者风格完成！"
           echo "✨ 核心特性:"
           echo "   🎨 深浅模式完全不同的配色方案"
           echo "   📋 智能9大分类系统"
@@ -469,4 +460,5 @@ $PROCESSED_CONTENT"
           echo "   💫 原作者风格布局"
           echo "   📱 完美响应式设计"
           echo "   🌗 深色模式专用样式"
+          echo "   ✅ 修复YAML语法错误"
           echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
