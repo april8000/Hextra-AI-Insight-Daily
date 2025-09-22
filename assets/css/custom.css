@@ -1,6 +1,6 @@
-/* AI洞察日报 - 原作者风格 */
+/* AI洞察日报 - 增强分类导航版 */
 
-/* 1. 基础样式 - 参考原作者项目 */
+/* 1. 基础样式 */
 h1:first-of-type {
   display: none;
 }
@@ -13,11 +13,8 @@ h1:first-of-type {
   word-break: break-word;
 }
 
-/* 2. 核心色调定义 - 橙色主题 #ff9900 */
+/* 2. 核心色调定义 */
 :root {
-  --primary-hue: 36deg;
-  --primary-saturation: 100%;
-  --primary-lightness: 50%;
   --primary-color: #ff9900;
   --primary-light: #ffaa33;
   --primary-dark: #e68800;
@@ -50,7 +47,7 @@ h1:first-of-type {
   border: 1px solid rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 4. 新闻条目浅色模式样式 */
+/* 4. 新闻条目样式 */
 .content ol li,
 .content ul li {
   margin-bottom: 1.5rem !important;
@@ -69,16 +66,25 @@ h1:first-of-type {
   box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15) !important;
 }
 
-/* 5. 标题浅色模式样式 */
+/* 5. 分类标题样式 - 重点优化 */
 .content h3 {
   color: var(--primary-color) !important;
   border-bottom: 2px solid rgba(255, 153, 0, 0.2);
-  padding-bottom: 0.5rem;
-  margin: 2rem 0 1rem 0 !important;
+  padding: 0.8rem 1.2rem !important;
+  margin: 2.5rem 0 1.5rem 0 !important;
   font-weight: 700 !important;
+  background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
+  border-radius: 8px;
+  position: relative;
 }
 
-/* 6. 链接浅色模式样式 */
+.content h3::before {
+  content: '📂';
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
+/* 6. 链接样式 */
 .content a {
   color: var(--primary-color) !important;
   text-decoration: none !important;
@@ -91,7 +97,7 @@ h1:first-of-type {
   text-decoration: underline !important;
 }
 
-/* 7. 强调文本浅色模式 */
+/* 7. 强调文本 */
 .content strong {
   color: var(--primary-color) !important;
   font-weight: 700 !important;
@@ -106,7 +112,7 @@ h1:first-of-type {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 9. 代码块浅色模式 */
+/* 9. 代码样式 */
 .content code {
   background-color: rgba(255, 153, 0, 0.1) !important;
   color: var(--primary-dark) !important;
@@ -115,38 +121,7 @@ h1:first-of-type {
   font-size: 0.9em !important;
 }
 
-/* 10. 深色模式样式 - 完全不同的配色 */
-html.dark {
-  --primary-hue: 36deg;
-  --primary-saturation: 100%;
-  --primary-lightness: 50%;
-}
-
-/* 深色模式基础布局 */
-.hextra-footer:is(html[class~=dark] *),
-.nav-container:is(html[class~=dark] *),
-body:is(html[class~=dark] *) {
-  background-color: #1c1c1c;
-}
-
-.nav-container-blur:is(html[class~=dark] *) {
-  background-color: rgba(28, 28, 28, 0.8) !important;
-}
-
-/* 深色模式导航栏 */
-.nav-container a:is(html[class~=dark] *),
-.nav-container svg:is(html[class~=dark] *) {
-  color: #ffffff;
-  transition: color 0.2s ease-in-out;
-}
-
-.nav-container a:hover:is(html[class~=dark] *),
-.nav-container a:hover svg:is(html[class~=dark] *),
-.nav-container button:hover svg:is(html[class~=dark] *) {
-  color: #ff9900 !important;
-}
-
-/* 深色模式分类标签 */
+/* 10. 深色模式样式 */
 html.dark .content blockquote {
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
   border-left-color: #ff9900 !important;
@@ -163,7 +138,6 @@ html.dark .content blockquote code {
   border-color: rgba(255, 153, 0, 0.4) !important;
 }
 
-/* 深色模式新闻条目 */
 html.dark .content ol li,
 html.dark .content ul li {
   background: rgba(255, 153, 0, 0.08) !important;
@@ -178,7 +152,6 @@ html.dark .content ul li:hover {
   box-shadow: 0 6px 20px rgba(255, 153, 0, 0.25) !important;
 }
 
-/* 深色模式标题 */
 html.dark .content h2,
 html.dark .content h3,
 html.dark .content h4 {
@@ -186,7 +159,10 @@ html.dark .content h4 {
   border-bottom-color: rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 深色模式链接 */
+html.dark .content h3 {
+  background: linear-gradient(90deg, rgba(255, 153, 0, 0.15), transparent) !important;
+}
+
 html.dark .content a {
   color: #ff9900 !important;
 }
@@ -195,19 +171,16 @@ html.dark .content a:hover {
   color: #ffaa33 !important;
 }
 
-/* 深色模式强调文本 */
 html.dark .content strong {
   color: #ff9900 !important;
 }
 
-/* 深色模式代码 */
 html.dark .content code {
   background-color: #2a2a2a !important;
   color: #ff9900 !important;
   border: 1px solid #444 !important;
 }
 
-/* 深色模式图片 */
 html.dark .content img {
   box-shadow: 0 8px 32px rgba(255, 153, 0, 0.15) !important;
 }
@@ -225,5 +198,9 @@ html.dark .content img {
   
   .content blockquote {
     padding: 1rem !important;
+  }
+  
+  .content h3 {
+    padding: 0.6rem 1rem !important;
   }
 }
