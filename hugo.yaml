@@ -1,5 +1,6 @@
 baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
 title: "AI洞察日报"
+description: "每日精选AI资讯与深度分析"
 
 theme: hextra
 
@@ -7,21 +8,43 @@ module:
   imports:
     - path: github.com/imfing/hextra
 
+# 语言配置
+defaultContentLanguage: zh
+languages:
+  zh:
+    languageCode: zh-CN
+    contentDir: content/cn
+    languageName: 简体中文
+    weight: 1
+
+# 分类和标签
+taxonomies:
+  tag: tags
+  category: categories
+  series: series
+
 markup:
   goldmark:
     renderer:
       unsafe: true
   highlight:
     noClasses: false
+    style: github
 
 menu:
   main:
     - name: AI日报
       pageRef: /cn
       weight: 1
+    - name: 标签
+      pageRef: /cn/tags
+      weight: 2
+    - name: 分类
+      pageRef: /cn/categories
+      weight: 3
     - name: GitHub
       url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
-      weight: 2
+      weight: 4
       params:
         icon: github
 
@@ -30,3 +53,17 @@ params:
     displayTitle: true
   footer:
     displayPoweredBy: true
+  
+  # 启用标签和分类显示
+  page:
+    showTags: true
+    showCategories: true
+    showDate: true
+    showSummary: true
+  
+  # 文章列表配置
+  list:
+    showTags: true
+    showCategories: true
+    showDate: true
+    showSummary: true
