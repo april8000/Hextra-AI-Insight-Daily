@@ -28,9 +28,9 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup final correct author-style content
+      - name: Setup fixed tags and summary content
         run: |
-          echo "🎯 最终正确版本：完全还原原作者结构..."
+          echo "🔧 修复标签条和摘要显示问题..."
           
           # 确保所有必要目录存在
           mkdir -p content/cn
@@ -39,7 +39,7 @@ jobs:
           
           # 创建原作者风格的CSS
           cat > assets/css/custom.css << 'EOF'
-          /* AI洞察日报 - 完全还原原作者风格 */
+          /* AI洞察日报 - 修复版 */
           
           h1:first-of-type {
             display: none;
@@ -228,7 +228,7 @@ jobs:
           }
           EOF
           
-          echo "✅ 原作者风格CSS已创建"
+          echo "✅ 修复版CSS已创建"
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
@@ -265,7 +265,7 @@ jobs:
           浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
           EOF
           
-          # 处理日报文件 - 最终正确版本
+          # 处理日报文件 - 修复版
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -277,7 +277,7 @@ jobs:
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
-              echo "--- 最终正确处理文件: ${FILENAME} → ${TARGET_FILE} ---"
+              echo "--- 修复版处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
               # 读取原始内容
               ORIGINAL_CONTENT=$(cat "$SOURCE_FILE_PATH")
@@ -285,7 +285,7 @@ jobs:
               # 生成日期显示格式
               DATE_DISPLAY=$(echo "$DATE_PART" | sed 's/-/\//g')
               
-              # 使用Python按原作者真实结构组织内容
+              # 使用Python修复标签和摘要
               python3 << PYTHON_EOF
           import re
           
@@ -304,24 +304,38 @@ jobs:
           opensource_news = []
           social_news = []
           
-          # 寻找摘要内容
-          for line in content.split('\\n'):
-              if '摘要' in line or '概述' in line or '简介' in line:
-                  summary_content = line.strip()
-                  break
+          # 智能提取摘要内容
+          lines = content.split('\n')
+          summary_lines = []
           
-          if not summary_content:
-              # 创建简单摘要
+          # 寻找有意义的内容作为摘要
+          for line in lines:
+              line = line.strip()
+              if line and len(line) > 15:  # 过滤掉过短的行
+                  # 跳过明显的标题、列表项等
+                  if (not line.startswith('#') and 
+                      not line.startswith('```') and 
+                      not line.startswith('---') and
+                      not re.match(r'^\d+\.', line) and 
+                      not line.startswith('- ') and 
+                      not line.startswith('* ') and
+                      not line.startswith('>')):
+                      summary_lines.append(line)
+                      if len(summary_lines) >= 3:  # 最多取3行
+                          break
+          
+          if summary_lines:
+              summary_content = '\n'.join(summary_lines[:3])
+          else:
               summary_content = f"{date_display}的AI行业动态汇总，包含最新产品发布、技术突破、行业投资等重要资讯。"
           
           # 按行分析内容并分类
-          lines = content.split('\\n')
           current_item = ""
           
           for line in lines:
-              if line.strip() and (re.match(r'^\\d+\\.', line) or line.startswith('- ') or line.startswith('* ')):
+              if line.strip() and (re.match(r'^\d+\.', line) or line.startswith('- ') or line.startswith('* ')):
                   # 保存之前的条目
-                  if current_item:
+                  if current_item and len(current_item.strip()) > 20:  # 确保条目有足够内容
                       if re.search(r'产品|功能|更新|发布|工具|平台|API|服务|模型|应用', current_item, re.IGNORECASE):
                           product_news.append(current_item.strip())
                       elif re.search(r'研究|论文|学术|科学|实验|算法|框架', current_item, re.IGNORECASE):
@@ -337,10 +351,10 @@ jobs:
                           product_news.append(current_item.strip())
                   current_item = line
               elif line.strip() and current_item:
-                  current_item += '\\n' + line
+                  current_item += '\n' + line
           
           # 处理最后一个条目
-          if current_item:
+          if current_item and len(current_item.strip()) > 20:
               if re.search(r'产品|功能|更新|发布|工具|平台|API|服务|模型|应用', current_item, re.IGNORECASE):
                   product_news.append(current_item.strip())
               elif re.search(r'研究|论文|学术|科学|实验|算法|框架', current_item, re.IGNORECASE):
@@ -354,52 +368,52 @@ jobs:
               else:
                   product_news.append(current_item.strip())
           
-          # 构建最终内容 - 完全按原作者格式
+          # 构建最终内容 - 修复标签条和摘要
           structured_content = f"""## AI资讯日报 {date_display}
           
-          >  \\`AI资讯\\` | \\`每日早读\\` | \\`全网数据聚合\\` | \\`前沿科学探索\\` | \\`行业自由发声\\` | \\`开源创新力量\\` | \\`AI与人类未来\\` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
+          >  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
           
           
           ### **今日摘要**
           
-          \\`\\`\\`
+          ```
           {summary_content}
-          \\`\\`\\`
+          ```
           
           
           """
           
-          # 添加原作者的5大固定分类
+          # 添加分类内容
           if product_news:
-              structured_content += "\\n### 产品与功能更新\\n"
+              structured_content += "\n### 产品与功能更新\n"
               for i, news in enumerate(product_news[:5], 1):
-                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\\n"
+                  clean_news = re.sub(r'^\d+\.\s*', '', news)
+                  structured_content += f"{i}.  {clean_news}\n"
           
           if research_news:
-              structured_content += "\\n### 前沿研究\\n"
+              structured_content += "\n### 前沿研究\n"
               for i, news in enumerate(research_news[:3], 1):
-                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\\n"
+                  clean_news = re.sub(r'^\d+\.\s*', '', news)
+                  structured_content += f"{i}.  {clean_news}\n"
           
           if industry_news:
-              structured_content += "\\n### 行业展望与社会影响\\n"
+              structured_content += "\n### 行业展望与社会影响\n"
               for i, news in enumerate(industry_news[:3], 1):
-                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\\n"
+                  clean_news = re.sub(r'^\d+\.\s*', '', news)
+                  structured_content += f"{i}.  {clean_news}\n"
           
           if opensource_news:
-              structured_content += "\\n### 开源TOP项目\\n"
+              structured_content += "\n### 开源TOP项目\n"
               for i, news in enumerate(opensource_news[:4], 1):
-                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\\n"
+                  clean_news = re.sub(r'^\d+\.\s*', '', news)
+                  structured_content += f"{i}.  {clean_news}\n"
           
           if social_news:
-              structured_content += "\\n### 社媒分享\\n"
+              structured_content += "\n### 社媒分享\n"
               for i, news in enumerate(social_news[:5], 1):
-                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\\n"
+                  clean_news = re.sub(r'^\d+\.\s*', '', news)
+                  structured_content += f"{i}.  {clean_news}\n"
           
           # 创建Front Matter和完整内容
           final_content = f'''---
@@ -418,7 +432,7 @@ jobs:
           with open("${TARGET_FILE}", "w", encoding="utf-8") as f:
               f.write(final_content)
           
-          print(f"✅ 最终正确文件已创建: ${TARGET_FILE}")
+          print(f"✅ 修复版文件已创建: ${TARGET_FILE}")
           PYTHON_EOF
               
               # 创建月份索引
@@ -443,7 +457,7 @@ jobs:
             fi
           done
           
-          echo "--- 最终正确版本设置完成 ---"
+          echo "--- 修复版设置完成 ---"
 
       - name: Commit and push changes
         run: |
@@ -454,20 +468,20 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🎯 最终正确版本：5大固定分类+完整标签条 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🔧 修复标签条和摘要显示：完美还原原作者格式 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 最终正确版本已推送"
+            echo "✅ 修复版已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎯 最终正确版本完成！"
-          echo "✅ 核心修正:"
-          echo "   📂 只有原作者的5大固定分类（今日摘要、产品更新、前沿研究、行业影响、开源项目、社媒分享）"
-          echo "   🏷️ 完整的分类标签条显示"
-          echo "   📋 右侧准确的分类导航"
+          echo "🔧 标签条和摘要修复完成！"
+          echo "✅ 修复内容:"
+          echo "   🏷️ 修复分类标签条正确显示"
+          echo "   📝 智能提取和显示摘要内容"
+          echo "   📂 保持5大固定分类结构"
+          echo "   🔢 正确的编号格式"
           echo "   🎨 完全还原原作者样式"
-          echo "   🌗 深浅模式完美支持"
-          echo "   ❌ 删除了不存在的'今日AI资讯'分类"
+          echo "   📋 准确的右侧导航"
           echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
