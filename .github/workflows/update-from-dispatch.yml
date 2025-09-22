@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 1 * * *'
-  push:
-    branches: [main]
 
 env:
   TZ: Asia/Shanghai
@@ -30,146 +28,76 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enhanced content processing with tags and images
+      - name: Process content for Hextra
         run: |
-          echo "🔍 开始增强版内容处理..."
+          echo "Processing content..."
           
-          # 处理日报文件到cn目录
-          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | while read -r SOURCE_FILE_PATH; do
+          # Create target directory
+          mkdir -p content/cn
+          
+          # Create cn main page
+          echo '---' > content/cn/_index.md
+          echo 'title: AI洞察日报' >> content/cn/_index.md
+          echo 'type: docs' >> content/cn/_index.md
+          echo '---' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '# AI洞察日报' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。' >> content/cn/_index.md
+          
+          # Process daily files
+          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
               DATE_PART=$(echo "$FILENAME" | sed -E 's/([0-9]{4}-[0-9]{2}-[0-9]{2}).*/\1/')
               YEAR_MONTH=$(echo "$DATE_PART" | cut -c1-7)
               
-              # 按现有结构创建目录 content/cn/YYYY-MM/
+              # Create directory by year-month
               TARGET_DIR="content/cn/${YEAR_MONTH}"
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
-              echo "--- 处理文件: ${FILENAME} → ${TARGET_FILE} ---"
+              echo "Processing file: ${FILENAME} to ${TARGET_FILE}"
               
-              # 检查是否需要更新
-              NEEDS_UPDATE=true
-              if [ -f "$TARGET_FILE" ]; then
-                SOURCE_CONTENT=$(cat "$SOURCE_FILE_PATH" 2>/dev/null || echo "")
-                TARGET_CONTENT=$(tail -n +20 "$TARGET_FILE" 2>/dev/null || echo "")
-                if [ "$SOURCE_CONTENT" = "$TARGET_CONTENT" ]; then
-                  echo "文件内容相同，跳过更新"
-                  NEEDS_UPDATE=false
-                fi
-              fi
+              # Generate Front Matter
+              echo '---' > "$TARGET_FILE"
+              echo "title: \"AI洞察日报 - ${DATE_PART}\"" >> "$TARGET_FILE"
+              echo "date: ${DATE_PART}T08:00:00+08:00" >> "$TARGET_FILE"
+              echo 'draft: false' >> "$TARGET_FILE"
+              echo 'tags: ["AI", "人工智能", "技术", "日报"]' >> "$TARGET_FILE"
+              echo 'categories: ["AI日报"]' >> "$TARGET_FILE"
+              echo 'type: docs' >> "$TARGET_FILE"
+              echo 'weight: 1' >> "$TARGET_FILE"
+              echo '---' >> "$TARGET_FILE"
+              echo '' >> "$TARGET_FILE"
               
-              if [ "$NEEDS_UPDATE" = true ]; then
-                # 分析内容生成更多标签
-                CONTENT=$(cat "$SOURCE_FILE_PATH")
-                TAGS=""
-                CATEGORIES=""
-                
-                # 基础标签
-                TAGS="[\"AI\", \"人工智能\", \"技术\", \"日报\""
-                CATEGORIES="[\"AI日报\""
-                
-                # 根据内容添加特定标签
-                if echo "$CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT"; then
-                  TAGS="${TAGS}, \"OpenAI\", \"ChatGPT\""
-                fi
-                if echo "$CONTENT" | grep -qi "谷歌\|Google\|Gemini\|Bard"; then
-                  TAGS="${TAGS}, \"Google\", \"谷歌\""
-                fi
-                if echo "$CONTENT" | grep -qi "微软\|Microsoft\|Copilot"; then
-                  TAGS="${TAGS}, \"微软\", \"Microsoft\""
-                fi
-                if echo "$CONTENT" | grep -qi "Meta\|Facebook"; then
-                  TAGS="${TAGS}, \"Meta\", \"Facebook\""
-                fi
-                if echo "$CONTENT" | grep -qi "自动驾驶\|无人驾驶"; then
-                  TAGS="${TAGS}, \"自动驾驶\""
-                  CATEGORIES="${CATEGORIES}, \"自动驾驶\""
-                fi
-                if echo "$CONTENT" | grep -qi "机器学习\|深度学习\|ML\|DL"; then
-                  TAGS="${TAGS}, \"机器学习\", \"深度学习\""
-                  CATEGORIES="${CATEGORIES}, \"机器学习\""
-                fi
-                if echo "$CONTENT" | grep -qi "芯片\|GPU\|CPU\|英伟达\|NVIDIA"; then
-                  TAGS="${TAGS}, \"芯片\", \"硬件\""
-                  CATEGORIES="${CATEGORIES}, \"硬件\""
-                fi
-                if echo "$CONTENT" | grep -qi "投资\|融资\|IPO\|上市"; then
-                  TAGS="${TAGS}, \"投资\", \"融资\""
-                  CATEGORIES="${CATEGORIES}, \"商业\""
-                fi
-                if echo "$CONTENT" | grep -qi "开源\|GitHub\|代码"; then
-                  TAGS="${TAGS}, \"开源\", \"GitHub\""
-                  CATEGORIES="${CATEGORIES}, \"开源\""
-                fi
-                if echo "$CONTENT" | grep -qi "研究\|论文\|学术"; then
-                  TAGS="${TAGS}, \"研究\", \"学术\""
-                  CATEGORIES="${CATEGORIES}, \"研究\""
-                fi
-                
-                TAGS="${TAGS}]"
-                CATEGORIES="${CATEGORIES}]"
-                
-                # 生成增强的Front Matter
-                cat > "$TARGET_FILE" << EOF
-          ---
-          title: "AI洞察日报 - ${DATE_PART}"
-          date: ${DATE_PART}T08:00:00+08:00
-          draft: false
-          tags: ${TAGS}
-          categories: ${CATEGORIES}
-          weight: 1
-          description: "每日精选AI资讯，涵盖行业动态、技术突破、产品发布等重要信息"
-          keywords: ["AI", "人工智能", "ChatGPT", "机器学习", "深度学习", "科技"]
-          authors: ["AI洞察日报"]
-          series: ["每日AI资讯"]
-          layout: "single"
-          type: "docs"
-          ---
-          
-          EOF
-                
-                # 添加原始内容
-                cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-                echo "✅ 文件已更新: ${TARGET_FILE}"
-                
-                # 创建或更新月份索引文件
-                MONTH_INDEX="${TARGET_DIR}/_index.md"
-                if [ ! -f "$MONTH_INDEX" ]; then
-                  cat > "$MONTH_INDEX" << EOF
-          ---
-          title: "${YEAR_MONTH} AI日报"
-          date: ${YEAR_MONTH}-01T00:00:00+08:00
-          type: docs
-          weight: 1
-          description: "${YEAR_MONTH}月份AI行业动态汇总"
-          ---
-          
-          # ${YEAR_MONTH} AI洞察日报
-          
-          本月的AI行业动态和技术趋势汇总，包括：
-          - 🔥 行业热点新闻
-          - 🛠️ 技术产品发布  
-          - 📊 市场投资动态
-          - 🧠 学术研究进展
-          - 💡 开源项目推荐
-          EOF
-                  echo "✅ 月份索引已创建: ${MONTH_INDEX}"
-                fi
+              # Add original content
+              cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
+              echo "File processed: ${TARGET_FILE}"
+              
+              # Create month index if not exists
+              MONTH_INDEX="${TARGET_DIR}/_index.md"
+              if [ ! -f "$MONTH_INDEX" ]; then
+                echo '---' > "$MONTH_INDEX"
+                echo "title: \"${YEAR_MONTH} AI日报\"" >> "$MONTH_INDEX"
+                echo "date: ${YEAR_MONTH}-01T00:00:00+08:00" >> "$MONTH_INDEX"
+                echo 'type: docs' >> "$MONTH_INDEX"
+                echo 'weight: 1' >> "$MONTH_INDEX"
+                echo '---' >> "$MONTH_INDEX"
+                echo '' >> "$MONTH_INDEX"
+                echo "# ${YEAR_MONTH} AI洞察日报" >> "$MONTH_INDEX"
+                echo '' >> "$MONTH_INDEX"
+                echo '本月的AI行业动态和技术趋势汇总。' >> "$MONTH_INDEX"
+                echo "Month index created: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "--- 增强内容处理完成 ---"
+          echo "Content processing completed"
           
-          # 显示最终目录结构
-          echo "=== 最终目录结构 ==="
-          find content/cn -type f -name "*.md" | head -10
-          
-          # 统计信息
-          echo "=== 统计信息 ==="
-          echo "总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
-          echo "最新文件: $(find content/cn -name "*.md" -type f | sort | tail -3)"
+          # Show directory structure
+          echo "=== Directory Structure ==="
+          find content -type f -name "*.md" | head -10
 
       - name: Commit and push changes
         run: |
@@ -178,19 +106,9 @@ jobs:
           
           git add .
           if git diff --staged --quiet; then
-            echo "ℹ️ 没有需要提交的更改"
+            echo "No changes to commit"
           else
-            git commit -m "🤖 增强内容同步 - 添加智能标签分类 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "Auto sync AI daily content - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 增强内容已同步并推送到仓库"
+            echo "Content synced and pushed to repository"
           fi
-
-      - name: Notify completion
-        if: always()
-        run: |
-          echo "🎉 增强版Hextra-AI-Insight-Daily内容同步完成！"
-          echo "📊 新功能:"
-          echo "   ✅ 智能标签分类"
-          echo "   ✅ 增强的Front Matter"
-          echo "   ✅ 更详细的描述信息"
-          echo "🔗 网站将在几分钟内自动更新"
