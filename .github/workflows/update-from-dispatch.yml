@@ -30,41 +30,19 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Process and convert content for Hextra
+      - name: Process and convert content for Hextra-AI-Insight-Daily
         run: |
-          echo "🔍 开始处理Hextra主题的内容同步..."
+          echo "🔍 开始处理Hextra-AI-Insight-Daily的内容同步..."
           
-          # 确保目标目录存在
-          mkdir -p content/docs
-          
-          # 创建docs主页
-          cat > content/docs/_index.md << 'EOF'
-          ---
-          title: AI洞察日报
-          type: docs
-          sidebar:
-            open: true
-          ---
-          
-          # AI洞察日报
-          
-          欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
-          
-          ## 最新日报
-          
-          浏览左侧菜单查看最新的AI日报内容。
-          EOF
-          
-          # 处理日报文件
-          PROCESSED_COUNT=0
-          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
+          # 处理日报文件到cn目录
+          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
               DATE_PART=$(echo "$FILENAME" | sed -E 's/([0-9]{4}-[0-9]{2}-[0-9]{2}).*/\1/')
               YEAR_MONTH=$(echo "$DATE_PART" | cut -c1-7)
               
-              # 按年月创建目录
-              TARGET_DIR="content/docs/${YEAR_MONTH}"
+              # 按现有结构创建目录 content/cn/YYYY-MM/
+              TARGET_DIR="content/cn/${YEAR_MONTH}"
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
@@ -73,16 +51,16 @@ jobs:
               # 检查是否需要更新
               NEEDS_UPDATE=true
               if [ -f "$TARGET_FILE" ]; then
-                SOURCE_SIZE=$(wc -c < "$SOURCE_FILE_PATH")
-                TARGET_CONTENT_SIZE=$(tail -n +9 "$TARGET_FILE" 2>/dev/null | wc -c)
-                if [ "$SOURCE_SIZE" -eq "$TARGET_CONTENT_SIZE" ]; then
-                  echo "文件大小相同，跳过更新"
+                SOURCE_CONTENT=$(cat "$SOURCE_FILE_PATH" 2>/dev/null || echo "")
+                TARGET_CONTENT=$(tail -n +8 "$TARGET_FILE" 2>/dev/null || echo "")
+                if [ "$SOURCE_CONTENT" = "$TARGET_CONTENT" ]; then
+                  echo "文件内容相同，跳过更新"
                   NEEDS_UPDATE=false
                 fi
               fi
               
               if [ "$NEEDS_UPDATE" = true ]; then
-                # 生成Hextra兼容的Front Matter
+                # 生成适合当前仓库的Front Matter
                 cat > "$TARGET_FILE" << EOF
           ---
           title: "AI洞察日报 - ${DATE_PART}"
@@ -90,8 +68,7 @@ jobs:
           draft: false
           tags: ["AI", "人工智能", "技术", "日报"]
           categories: ["AI日报"]
-          type: docs
-          weight: $(date -d "$DATE_PART" +%s)
+          weight: 1
           ---
           
           EOF
@@ -99,9 +76,8 @@ jobs:
                 # 添加原始内容
                 cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
                 echo "✅ 文件已更新: ${TARGET_FILE}"
-                PROCESSED_COUNT=$((PROCESSED_COUNT + 1))
                 
-                # 创建年月索引文件
+                # 创建或更新月份索引文件
                 MONTH_INDEX="${TARGET_DIR}/_index.md"
                 if [ ! -f "$MONTH_INDEX" ]; then
                   cat > "$MONTH_INDEX" << EOF
@@ -109,9 +85,7 @@ jobs:
           title: "${YEAR_MONTH} AI日报"
           date: ${YEAR_MONTH}-01T00:00:00+08:00
           type: docs
-          sidebar:
-            open: true
-          weight: $(date -d "${YEAR_MONTH}-01" +%s)
+          weight: 1
           ---
           
           # ${YEAR_MONTH} AI洞察日报
@@ -125,68 +99,15 @@ jobs:
           done
           
           echo "--- 内容处理完成 ---"
-          echo "处理文件数: ${PROCESSED_COUNT}"
           
           # 显示最终目录结构
           echo "=== 最终目录结构 ==="
-          find content -type f -name "*.md" | head -10
+          find content/cn -type f -name "*.md" | head -10
           
           # 检查关键文件
           echo "=== 检查关键文件 ==="
-          ls -la content/docs/ || echo "docs目录为空"
-          ls -la content/docs/*/ || echo "没有月份目录"
-
-      - name: Update site configuration
-        run: |
-          # 确保hugo.yaml配置正确
-          if [ ! -f "hugo.yaml" ] || ! grep -q "baseURL:" hugo.yaml; then
-            echo "更新Hugo配置..."
-            cat > hugo.yaml << 'EOF'
-          baseURL: https://april8000.github.io/Hextra-AI-Insight-Daily/
-          title: AI洞察日报
-          
-          theme: hextra
-          module:
-            imports:
-              - path: github.com/imfing/hextra
-          
-          markup:
-            goldmark:
-              renderer:
-                unsafe: true
-            highlight:
-              noClasses: false
-          
-          menu:
-            main:
-              - name: AI日报
-                pageRef: /docs
-                weight: 1
-              - name: 关于
-                pageRef: /about
-                weight: 2
-              - name: GitHub
-                url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
-                weight: 3
-                params:
-                  icon: github
-              - name: Search
-                weight: 4
-                params:
-                  type: search
-          
-          params:
-            navbar:
-              displayTitle: true
-              displayLogo: false
-            footer:
-              displayCopyright: false
-              displayPoweredBy: true
-            editURL:
-              enable: false
-          EOF
-            echo "✅ Hugo配置已更新"
-          fi
+          ls -la content/cn/ || echo "cn目录为空"
+          ls -la content/cn/*/ || echo "没有月份目录"
 
       - name: Commit and push changes
         run: |
@@ -205,7 +126,7 @@ jobs:
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 AI日报内容同步完成！"
+          echo "🎉 Hextra-AI-Insight-Daily 内容同步完成！"
           echo "📊 统计信息："
-          find content -name "*.md" -type f | wc -l | xargs echo "总文件数："
+          find content/cn -name "*.md" -type f | wc -l | xargs echo "总文件数："
           echo "🔗 网站将在几分钟内自动更新"
