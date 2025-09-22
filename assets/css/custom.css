@@ -1,6 +1,6 @@
-/* AI洞察日报 - 增强分类导航版 */
+/* AI洞察日报 - 真实原作者风格 */
 
-/* 1. 基础样式 */
+/* 基础样式 */
 h1:first-of-type {
   display: none;
 }
@@ -13,14 +13,14 @@ h1:first-of-type {
   word-break: break-word;
 }
 
-/* 2. 核心色调定义 */
+/* 核心色调定义 - 橙色主题 #ff9900 */
 :root {
   --primary-color: #ff9900;
   --primary-light: #ffaa33;
   --primary-dark: #e68800;
 }
 
-/* 3. 浅色模式分类标签样式 */
+/* 浅色模式分类标签样式 */
 .content blockquote {
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.03));
   border: none;
@@ -47,7 +47,7 @@ h1:first-of-type {
   border: 1px solid rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 4. 新闻条目样式 */
+/* 新闻条目样式 */
 .content ol li,
 .content ul li {
   margin-bottom: 1.5rem !important;
@@ -66,25 +66,24 @@ h1:first-of-type {
   box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15) !important;
 }
 
-/* 5. 分类标题样式 - 重点优化 */
+/* 分类标题样式 */
 .content h3 {
   color: var(--primary-color) !important;
   border-bottom: 2px solid rgba(255, 153, 0, 0.2);
-  padding: 0.8rem 1.2rem !important;
-  margin: 2.5rem 0 1.5rem 0 !important;
+  padding-bottom: 0.5rem;
+  margin: 2rem 0 1rem 0 !important;
   font-weight: 700 !important;
+}
+
+/* 今日摘要特殊样式 */
+.content h3:contains("今日摘要"),
+.content h3:contains("摘要") {
   background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
+  padding: 0.8rem 1.2rem !important;
   border-radius: 8px;
-  position: relative;
 }
 
-.content h3::before {
-  content: '📂';
-  margin-right: 0.5rem;
-  font-size: 1.1em;
-}
-
-/* 6. 链接样式 */
+/* 链接样式 */
 .content a {
   color: var(--primary-color) !important;
   text-decoration: none !important;
@@ -97,13 +96,13 @@ h1:first-of-type {
   text-decoration: underline !important;
 }
 
-/* 7. 强调文本 */
+/* 强调文本 */
 .content strong {
   color: var(--primary-color) !important;
   font-weight: 700 !important;
 }
 
-/* 8. 图片样式 */
+/* 图片样式 */
 .content img {
   margin: 1rem auto !important;
   border-radius: 8px !important;
@@ -112,7 +111,7 @@ h1:first-of-type {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 9. 代码样式 */
+/* 代码样式 */
 .content code {
   background-color: rgba(255, 153, 0, 0.1) !important;
   color: var(--primary-dark) !important;
@@ -121,7 +120,7 @@ h1:first-of-type {
   font-size: 0.9em !important;
 }
 
-/* 10. 深色模式样式 */
+/* 深色模式样式 */
 html.dark .content blockquote {
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
   border-left-color: #ff9900 !important;
@@ -159,10 +158,6 @@ html.dark .content h4 {
   border-bottom-color: rgba(255, 153, 0, 0.3) !important;
 }
 
-html.dark .content h3 {
-  background: linear-gradient(90deg, rgba(255, 153, 0, 0.15), transparent) !important;
-}
-
 html.dark .content a {
   color: #ff9900 !important;
 }
@@ -198,9 +193,5 @@ html.dark .content img {
   
   .content blockquote {
     padding: 1rem !important;
-  }
-  
-  .content h3 {
-    padding: 0.6rem 1rem !important;
   }
 }
