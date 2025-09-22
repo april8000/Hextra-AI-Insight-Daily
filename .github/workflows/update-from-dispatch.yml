@@ -28,16 +28,136 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create complete content with full display
+      - name: Setup complete content structure with styles
         run: |
-          echo "🎨 开始创建完整内容展示..."
+          echo "🎨 开始设置完整的内容结构和样式..."
           
-          # 确保目标目录存在
+          # 确保所有必要目录存在
           mkdir -p content/cn
           mkdir -p assets/css
           mkdir -p static/images
           
-          # 创建根目录首页（简化版）
+          # 创建自定义CSS文件
+          cat > assets/css/custom.css << 'EOF'
+          /* AI洞察日报 - 增强视觉样式 */
+          
+          /* 1. 确保内容完整显示 */
+          .content {
+            max-width: none !important;
+            overflow: visible !important;
+          }
+          
+          h1:first-of-type {
+            display: none;
+          }
+          
+          /* 2. 增强的分类标签样式 */
+          .content blockquote {
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.05));
+            border-left: 4px solid #ff9900;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+          }
+          
+          .content blockquote p {
+            margin: 0 !important;
+            color: #ff9900 !important;
+            font-weight: 500;
+          }
+          
+          .content blockquote code {
+            background-color: rgba(255, 153, 0, 0.2) !important;
+            color: #ff6600 !important;
+            padding: 2px 6px !important;
+            border-radius: 4px !important;
+            font-weight: 600 !important;
+          }
+          
+          /* 3. 新闻条目美化 */
+          .content ol li,
+          .content ul li {
+            margin-bottom: 1.5rem !important;
+            padding: 1rem !important;
+            background: rgba(255, 153, 0, 0.03) !important;
+            border-radius: 8px !important;
+            border-left: 3px solid #ff9900 !important;
+            transition: all 0.3s ease !important;
+          }
+          
+          .content ol li:hover,
+          .content ul li:hover {
+            background: rgba(255, 153, 0, 0.08) !important;
+            transform: translateX(5px) !important;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2) !important;
+          }
+          
+          /* 4. 标题美化 */
+          .content h3 {
+            color: #ff9900 !important;
+            border-bottom: 2px solid rgba(255, 153, 0, 0.3);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem !important;
+            margin-bottom: 1rem !important;
+          }
+          
+          /* 5. 图片样式 */
+          .content img {
+            margin: 1rem auto !important;
+            border-radius: 8px !important;
+            max-width: 100% !important;
+            height: auto !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+          }
+          
+          /* 6. 链接样式 */
+          .content a {
+            color: #ff9900 !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+          }
+          
+          .content a:hover {
+            color: #ffaa33 !important;
+            text-decoration: underline !important;
+          }
+          
+          /* 7. 强调文本 */
+          .content strong {
+            color: #ff9900 !important;
+            background: rgba(255, 153, 0, 0.1) !important;
+            padding: 1px 3px !important;
+            border-radius: 3px !important;
+          }
+          
+          /* 8. 暗色主题优化 */
+          html.dark .content ol li,
+          html.dark .content ul li {
+            background: rgba(255, 153, 0, 0.08) !important;
+            color: #f0f0f0 !important;
+          }
+          
+          html.dark .content ol li:hover,
+          html.dark .content ul li:hover {
+            background: rgba(255, 153, 0, 0.15) !important;
+          }
+          EOF
+          
+          echo "✅ 自定义CSS文件已创建"
+          
+          # 创建go.mod文件
+          cat > go.mod << 'EOF'
+          module github.com/april8000/Hextra-AI-Insight-Daily
+          
+          go 1.21
+          
+          require github.com/imfing/hextra v0.11.0 // indirect
+          EOF
+          
+          echo "✅ go.mod文件已创建"
+          
+          # 创建根目录首页
           cat > content/_index.md << 'EOF'
           ---
           title: AI洞察日报
@@ -68,20 +188,9 @@ jobs:
           ## 🔥 最新动态
           
           浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
-          
-          ---
-          
-          ### 📊 内容特色
-          
-          - 🎯 **精准筛选** - 从海量信息中筛选最有价值的AI资讯
-          - 🔥 **热点追踪** - 实时跟踪AI行业最新动态和突破
-          - 💼 **商业洞察** - 深入分析AI投资、融资、商业趋势  
-          - 🔓 **开源聚焦** - 精选GitHub热门AI项目和工具
-          - 📚 **学术前沿** - 汇总最新AI研究论文和技术突破
-          - 🎨 **创意工具** - 推荐最新AI创作工具和应用
           EOF
           
-          # 处理日报文件 - 完整内容显示
+          # 处理日报文件 - 确保完整内容
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -95,57 +204,32 @@ jobs:
               
               echo "--- 处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
-              # 检查是否需要更新
-              NEEDS_UPDATE=true
-              if [ -f "$TARGET_FILE" ]; then
-                SOURCE_SIZE=$(stat -c%s "$SOURCE_FILE_PATH" 2>/dev/null || stat -f%z "$SOURCE_FILE_PATH" 2>/dev/null)
-                if [ -f "$TARGET_FILE" ]; then
-                  TARGET_SIZE=$(tail -n +30 "$TARGET_FILE" 2>/dev/null | wc -c)
-                  if [ "$SOURCE_SIZE" -eq "$TARGET_SIZE" ]; then
-                    echo "文件大小相同，跳过更新"
-                    NEEDS_UPDATE=false
-                  fi
-                fi
+              # 读取完整原始内容
+              ORIGINAL_CONTENT=$(cat "$SOURCE_FILE_PATH")
+              
+              # 根据内容生成分类标签
+              CATEGORY_TAGS="\`AI资讯\` | \`每日早读\`"
+              
+              if echo "$ORIGINAL_CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`大模型前沿\`"
+              fi
+              if echo "$ORIGINAL_CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元"; then
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`商业动态\`"
+              fi
+              if echo "$ORIGINAL_CONTENT" | grep -qi "开源\|GitHub\|代码"; then
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`开源创新力量\`"
+              fi
+              if echo "$ORIGINAL_CONTENT" | grep -qi "研究\|论文\|学术"; then
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`前沿科学探索\`"
+              fi
+              if echo "$ORIGINAL_CONTENT" | grep -qi "机器人\|自动驾驶"; then
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`AI与人类未来\`"
               fi
               
-              if [ "$NEEDS_UPDATE" = true ]; then
-                # 读取完整内容
-                FULL_CONTENT=$(cat "$SOURCE_FILE_PATH")
-                
-                # 根据内容分析生成分类标签
-                CATEGORY_TAGS="\`AI资讯\` | \`每日早读\`"
-                
-                # 根据内容添加特定分类标签
-                if echo "$FULL_CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`大模型前沿\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元\|估值"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`商业动态\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "开源\|GitHub\|代码\|开发者"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`开源创新力量\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "研究\|论文\|学术\|大学\|实验室"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`前沿科学探索\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "机器人\|Robot\|人形机器人\|自动驾驶"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`AI与人类未来\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "图像生成\|文生图\|视频生成\|AIGC"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`创意AI工具\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "医疗\|医学\|健康\|教育\|金融"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业应用\`"
-                fi
-                if echo "$FULL_CONTENT" | grep -qi "谷歌\|微软\|Meta\|苹果\|亚马逊\|百度\|阿里\|腾讯"; then
-                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业自由发声\`"
-                fi
-                
-                # 总是添加数据聚合标签
-                CATEGORY_TAGS="${CATEGORY_TAGS} | \`全网数据聚合\`"
-                
-                # 生成Front Matter（包含完整的原作者风格配置）
-                cat > "$TARGET_FILE" << EOF
+              CATEGORY_TAGS="${CATEGORY_TAGS} | \`全网数据聚合\`"
+              
+              # 创建完整的文件内容
+              cat > "$TARGET_FILE" << EOF
           ---
           linkTitle: $(echo $DATE_PART | cut -c6-10)-日报
           title: "AI洞察日报 - ${DATE_PART}"
@@ -156,7 +240,6 @@ jobs:
           sidebar:
             open: true
           description: "${DATE_PART}的AI行业动态、技术发展和重要资讯汇总"
-          keywords: ["AI", "人工智能", "ChatGPT", "机器学习", "深度学习", "科技"]
           breadcrumbs: false
           comments: true
           ---
@@ -165,17 +248,15 @@ jobs:
           
           > ${CATEGORY_TAGS} | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
+          ${ORIGINAL_CONTENT}
           EOF
-                
-                # 添加完整的原始内容（不跳过任何内容）
-                echo "" >> "$TARGET_FILE"
-                cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-                echo "✅ 完整内容已添加: ${TARGET_FILE}"
-                
-                # 创建或更新月份索引文件
-                MONTH_INDEX="${TARGET_DIR}/_index.md"
-                if [ ! -f "$MONTH_INDEX" ]; then
-                  cat > "$MONTH_INDEX" << EOF
+              
+              echo "✅ 完整内容文件已创建: ${TARGET_FILE}"
+              
+              # 创建月份索引
+              MONTH_INDEX="${TARGET_DIR}/_index.md"
+              if [ ! -f "$MONTH_INDEX" ]; then
+                cat > "$MONTH_INDEX" << EOF
           ---
           title: "${YEAR_MONTH} AI日报"
           date: ${YEAR_MONTH}-01T00:00:00+08:00
@@ -183,45 +264,26 @@ jobs:
           sidebar:
             open: true
           weight: 1
-          description: "${YEAR_MONTH}月份AI行业动态汇总"
           ---
           
           # ${YEAR_MONTH} AI洞察日报
           
-          > 📅 **${YEAR_MONTH}** | 🔥 **月度精选** | 📊 **数据汇总** | 🚀 **趋势分析**
+          > 📅 **${YEAR_MONTH}** | 🔥 **月度精选** | 📊 **数据汇总**
           
-          本月的AI行业动态和技术趋势汇总：
-          
-          ## 📈 本月亮点
-          
-          - 🔥 **行业热点** - 重大事件和突破性进展  
-          - 🛠️ **技术产品** - 新工具、新平台、新功能发布
-          - 📊 **商业动态** - 投资融资、并购重组、IPO上市
-          - 🧠 **学术研究** - 论文发布、实验突破、技术创新
-          - 💡 **开源项目** - GitHub热门项目和开发者工具
-          - 🎯 **行业应用** - 垂直领域AI应用案例和趋势
-          
-          ---
-          
-          *浏览左侧导航查看本月各日的详细AI资讯内容*
+          本月的AI行业动态和技术趋势汇总。
           EOF
-                  echo "✅ 美化月份索引已创建: ${MONTH_INDEX}"
-                fi
+                echo "✅ 月份索引已创建: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "--- 完整内容处理完成 ---"
+          echo "--- 完整设置完成 ---"
           
-          # 显示处理结果
-          echo "=== 处理结果统计 ==="
-          echo "📁 内容目录数: $(find content/cn -type d | wc -l)"
-          echo "📄 markdown文件数: $(find content/cn -name "*.md" -type f | wc -l)"
-          echo "📊 平均文件大小: $(find content/cn -name "*.md" -type f -exec wc -c {} + 2>/dev/null | tail -1 | awk '{print $1}' || echo '0') bytes"
-          
-          # 显示最新文件
-          echo "=== 最新处理的文件 ==="
-          find content/cn -name "*.md" -type f | sort | tail -5
+          # 显示文件统计
+          echo "=== 文件统计 ==="
+          echo "📄 内容文件: $(find content -name "*.md" -type f | wc -l)"
+          echo "🎨 样式文件: $(find assets -name "*.css" -type f | wc -l)"
+          echo "📦 配置文件: $(ls -1 *.mod *.yaml 2>/dev/null | wc -l)"
 
       - name: Commit and push changes
         run: |
@@ -232,22 +294,19 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "📰 完整内容展示：保留所有原始内容 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🎨 完整修复：添加自定义样式和完整内容 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 完整内容已同步并推送到仓库"
+            echo "✅ 完整内容和样式已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 完整内容展示更新完成！"
-          echo "✨ 改进功能:"
-          echo "   📰 保留完整原始内容（不截断）"
-          echo "   🏷️ 智能分类标签系统"
-          echo "   📱 优化的侧边栏导航"
-          echo "   🎨 美化的页面布局"
-          echo "   📊 详细的内容统计"
-          echo "   🔗 完整的图片和链接展示"
-          echo "📊 内容统计："
-          echo "   📄 总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
-          echo "🔗 网站将在几分钟内更新，展现完整丰富的内容！"
+          echo "🎉 完整修复完成！"
+          echo "✅ 修复内容:"
+          echo "   🎨 自定义CSS样式已添加"
+          echo "   📦 Go模块配置已创建"
+          echo "   📰 完整日报内容已处理"
+          echo "   🏷️ 智能分类标签已生成"
+          echo "   📱 响应式布局已优化"
+          echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
