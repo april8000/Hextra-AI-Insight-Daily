@@ -28,32 +28,26 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create enhanced content with beautiful styling
+      - name: Create complete content with full display
         run: |
-          echo "🎨 开始创建增强版美化内容..."
+          echo "🎨 开始创建完整内容展示..."
           
           # 确保目标目录存在
           mkdir -p content/cn
           mkdir -p assets/css
           mkdir -p static/images
           
-          # 创建根目录首页
+          # 创建根目录首页（简化版）
           cat > content/_index.md << 'EOF'
           ---
           title: AI洞察日报
-          layout: hextra-home
           ---
           
-          {{< hextra/hero-container >}}
-            {{< hextra/hero-headline >}}
-              AI洞察日报 &nbsp;<br class="sm:block hidden" />精选AI新闻与深度分析
-            {{< /hextra/hero-headline >}}
-            {{< hextra/hero-subtitle >}}
-              每日为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程<br class="sm:block hidden" />
-              助您高效获取人工智能领域的前沿动态
-            {{< /hextra/hero-subtitle >}}
-            {{< hextra/hero-button text="查看最新日报" link="/cn/" >}}
-          {{< /hextra/hero-container >}}
+          # AI洞察日报
+          
+          **精选AI新闻与深度分析** | 每日为您过滤信息噪音，提供最精选的AI资讯
+          
+          [查看最新日报 →](/cn/)
           EOF
           
           # 创建cn目录主页
@@ -67,31 +61,27 @@ jobs:
           
           # AI洞察日报
           
-          > 📰 **每日精选AI资讯** | 🔍 **深度分析** | 🌐 **全网数据聚合** | 🚀 **前沿科技探索**
+          > 🤖 **AI资讯** | 📰 **每日早读** | 🌐 **全网数据聚合** | 🔬 **前沿科学探索** | 💡 **开源创新力量** | 🚀 **AI与人类未来**
           
           欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
           
           ## 🔥 最新动态
           
-          浏览左侧的日期导航查看最新的AI日报内容，每日更新，不容错过！
+          浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
           
-          ## 📊 内容分类
+          ---
           
-          - 🤖 **大模型前沿** - OpenAI、Google、微软等最新AI模型动态
-          - 💰 **商业动态** - AI行业投资、融资、上市等商业资讯  
-          - 🔓 **开源创新** - GitHub热门AI项目、开发者工具推荐
-          - 🔬 **前沿研究** - 学术论文、实验室最新研究成果
-          - 🎨 **创意工具** - AI绘画、视频生成、AIGC应用
-          - 🏢 **行业应用** - 医疗、教育、金融等垂直领域AI应用
+          ### 📊 内容特色
+          
+          - 🎯 **精准筛选** - 从海量信息中筛选最有价值的AI资讯
+          - 🔥 **热点追踪** - 实时跟踪AI行业最新动态和突破
+          - 💼 **商业洞察** - 深入分析AI投资、融资、商业趋势  
+          - 🔓 **开源聚焦** - 精选GitHub热门AI项目和工具
+          - 📚 **学术前沿** - 汇总最新AI研究论文和技术突破
+          - 🎨 **创意工具** - 推荐最新AI创作工具和应用
           EOF
           
-          # 复制自定义样式文件
-          if [ -f "custom-styles.css" ]; then
-            cp custom-styles.css assets/css/custom.css
-            echo "✅ 自定义样式文件已添加"
-          fi
-          
-          # 处理日报文件
+          # 处理日报文件 - 完整内容显示
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -108,53 +98,56 @@ jobs:
               # 检查是否需要更新
               NEEDS_UPDATE=true
               if [ -f "$TARGET_FILE" ]; then
-                SOURCE_CONTENT=$(cat "$SOURCE_FILE_PATH" 2>/dev/null || echo "")
-                TARGET_CONTENT=$(tail -n +25 "$TARGET_FILE" 2>/dev/null || echo "")
-                if [ "$SOURCE_CONTENT" = "$TARGET_CONTENT" ]; then
-                  echo "文件内容相同，跳过更新"
-                  NEEDS_UPDATE=false
+                SOURCE_SIZE=$(stat -c%s "$SOURCE_FILE_PATH" 2>/dev/null || stat -f%z "$SOURCE_FILE_PATH" 2>/dev/null)
+                if [ -f "$TARGET_FILE" ]; then
+                  TARGET_SIZE=$(tail -n +30 "$TARGET_FILE" 2>/dev/null | wc -c)
+                  if [ "$SOURCE_SIZE" -eq "$TARGET_SIZE" ]; then
+                    echo "文件大小相同，跳过更新"
+                    NEEDS_UPDATE=false
+                  fi
                 fi
               fi
               
               if [ "$NEEDS_UPDATE" = true ]; then
-                # 读取内容进行智能分析
-                CONTENT=$(cat "$SOURCE_FILE_PATH")
+                # 读取完整内容
+                FULL_CONTENT=$(cat "$SOURCE_FILE_PATH")
                 
                 # 根据内容分析生成分类标签
                 CATEGORY_TAGS="\`AI资讯\` | \`每日早读\`"
                 
                 # 根据内容添加特定分类标签
-                if echo "$CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
+                if echo "$FULL_CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`大模型前沿\`"
                 fi
-                if echo "$CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元\|估值"; then
+                if echo "$FULL_CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元\|估值"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`商业动态\`"
                 fi
-                if echo "$CONTENT" | grep -qi "开源\|GitHub\|代码\|开发者"; then
+                if echo "$FULL_CONTENT" | grep -qi "开源\|GitHub\|代码\|开发者"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`开源创新力量\`"
                 fi
-                if echo "$CONTENT" | grep -qi "研究\|论文\|学术\|大学\|实验室"; then
+                if echo "$FULL_CONTENT" | grep -qi "研究\|论文\|学术\|大学\|实验室"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`前沿科学探索\`"
                 fi
-                if echo "$CONTENT" | grep -qi "机器人\|Robot\|人形机器人\|自动驾驶"; then
+                if echo "$FULL_CONTENT" | grep -qi "机器人\|Robot\|人形机器人\|自动驾驶"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`AI与人类未来\`"
                 fi
-                if echo "$CONTENT" | grep -qi "图像生成\|文生图\|视频生成\|AIGC"; then
+                if echo "$FULL_CONTENT" | grep -qi "图像生成\|文生图\|视频生成\|AIGC"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`创意AI工具\`"
                 fi
-                if echo "$CONTENT" | grep -qi "医疗\|医学\|健康\|教育\|金融"; then
+                if echo "$FULL_CONTENT" | grep -qi "医疗\|医学\|健康\|教育\|金融"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业应用\`"
                 fi
-                if echo "$CONTENT" | grep -qi "谷歌\|微软\|Meta\|苹果\|亚马逊\|百度\|阿里\|腾讯"; then
+                if echo "$FULL_CONTENT" | grep -qi "谷歌\|微软\|Meta\|苹果\|亚马逊\|百度\|阿里\|腾讯"; then
                   CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业自由发声\`"
                 fi
                 
                 # 总是添加数据聚合标签
                 CATEGORY_TAGS="${CATEGORY_TAGS} | \`全网数据聚合\`"
                 
-                # 生成美化的Front Matter
+                # 生成Front Matter（包含完整的原作者风格配置）
                 cat > "$TARGET_FILE" << EOF
           ---
+          linkTitle: $(echo $DATE_PART | cut -c6-10)-日报
           title: "AI洞察日报 - ${DATE_PART}"
           date: ${DATE_PART}T08:00:00+08:00
           draft: false
@@ -164,9 +157,8 @@ jobs:
             open: true
           description: "${DATE_PART}的AI行业动态、技术发展和重要资讯汇总"
           keywords: ["AI", "人工智能", "ChatGPT", "机器学习", "深度学习", "科技"]
-          authors: ["AI洞察日报"]
-          comments: true
           breadcrumbs: false
+          comments: true
           ---
           
           ## AI洞察日报 ${DATE_PART}
@@ -175,9 +167,10 @@ jobs:
           
           EOF
                 
-                # 添加原始内容（跳过第一行标题，因为我们已经添加了新的标题）
-                tail -n +2 "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-                echo "✅ 文件已更新并添加美化样式: ${TARGET_FILE}"
+                # 添加完整的原始内容（不跳过任何内容）
+                echo "" >> "$TARGET_FILE"
+                cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
+                echo "✅ 完整内容已添加: ${TARGET_FILE}"
                 
                 # 创建或更新月份索引文件
                 MONTH_INDEX="${TARGET_DIR}/_index.md"
@@ -197,13 +190,20 @@ jobs:
           
           > 📅 **${YEAR_MONTH}** | 🔥 **月度精选** | 📊 **数据汇总** | 🚀 **趋势分析**
           
-          本月的AI行业动态和技术趋势汇总，包括：
+          本月的AI行业动态和技术趋势汇总：
           
-          - 🔥 **行业热点新闻** - 重大事件和突破性进展  
-          - 🛠️ **技术产品发布** - 新工具、新平台、新功能
-          - 📊 **市场投资动态** - 融资、并购、IPO等商业活动
-          - 🧠 **学术研究进展** - 论文发布、实验突破
-          - 💡 **开源项目推荐** - GitHub热门项目和开发者工具
+          ## 📈 本月亮点
+          
+          - 🔥 **行业热点** - 重大事件和突破性进展  
+          - 🛠️ **技术产品** - 新工具、新平台、新功能发布
+          - 📊 **商业动态** - 投资融资、并购重组、IPO上市
+          - 🧠 **学术研究** - 论文发布、实验突破、技术创新
+          - 💡 **开源项目** - GitHub热门项目和开发者工具
+          - 🎯 **行业应用** - 垂直领域AI应用案例和趋势
+          
+          ---
+          
+          *浏览左侧导航查看本月各日的详细AI资讯内容*
           EOF
                   echo "✅ 美化月份索引已创建: ${MONTH_INDEX}"
                 fi
@@ -211,17 +211,17 @@ jobs:
             fi
           done
           
-          echo "--- 美化内容处理完成 ---"
+          echo "--- 完整内容处理完成 ---"
           
-          # 显示最终目录结构
-          echo "=== 最终目录结构 ==="
-          find content -type f -name "*.md" | head -10
+          # 显示处理结果
+          echo "=== 处理结果统计 ==="
+          echo "📁 内容目录数: $(find content/cn -type d | wc -l)"
+          echo "📄 markdown文件数: $(find content/cn -name "*.md" -type f | wc -l)"
+          echo "📊 平均文件大小: $(find content/cn -name "*.md" -type f -exec wc -c {} + 2>/dev/null | tail -1 | awk '{print $1}' || echo '0') bytes"
           
-          # 统计信息
-          echo "=== 统计信息 ==="
-          echo "总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
-          echo "样式文件: $(find assets -name "*.css" -type f | wc -l)"
-          echo "最新文件: $(find content/cn -name "*.md" -type f | sort | tail -3)"
+          # 显示最新文件
+          echo "=== 最新处理的文件 ==="
+          find content/cn -name "*.md" -type f | sort | tail -5
 
       - name: Commit and push changes
         run: |
@@ -232,22 +232,22 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "✨ 美化升级：添加自定义样式和增强布局 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "📰 完整内容展示：保留所有原始内容 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 美化内容已同步并推送到仓库"
+            echo "✅ 完整内容已同步并推送到仓库"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 美化版AI日报内容同步完成！"
-          echo "✨ 新功能:"
-          echo "   🎨 原作者风格的橙色主题"
+          echo "🎉 完整内容展示更新完成！"
+          echo "✨ 改进功能:"
+          echo "   📰 保留完整原始内容（不截断）"
           echo "   🏷️ 智能分类标签系统"
-          echo "   📱 响应式侧边栏导航"
-          echo "   🖼️ 优化的图片和视频显示"
-          echo "   🌗 精美的暗色主题"
-          echo "   📄 增强的首页布局"
-          echo "📊 统计信息："
-          find content/cn -name "*.md" -type f | wc -l | xargs echo "总文件数："
-          echo "🔗 网站将在几分钟内自动更新，展现全新美观界面！"
+          echo "   📱 优化的侧边栏导航"
+          echo "   🎨 美化的页面布局"
+          echo "   📊 详细的内容统计"
+          echo "   🔗 完整的图片和链接展示"
+          echo "📊 内容统计："
+          echo "   📄 总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
+          echo "🔗 网站将在几分钟内更新，展现完整丰富的内容！"
