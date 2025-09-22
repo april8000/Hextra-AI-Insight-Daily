@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 1 * * *'
-  push:
-    branches: [main]
 
 env:
   TZ: Asia/Shanghai
@@ -30,14 +28,27 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Process and convert content for Hextra-AI-Insight-Daily with enhancements
+      - name: Create basic content structure
         run: |
-          echo "🔍 开始处理增强版Hextra-AI-Insight-Daily的内容同步..."
+          echo "🔍 创建基础内容结构..."
           
           # 确保目标目录存在
           mkdir -p content/cn
           
-          # 创建或更新主页
+          # 创建根目录首页
+          cat > content/_index.md << 'EOF'
+          ---
+          title: AI洞察日报
+          ---
+          
+          # AI洞察日报
+          
+          欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
+          
+          [查看最新日报 →](/cn/)
+          EOF
+          
+          # 创建cn目录主页
           cat > content/cn/_index.md << 'EOF'
           ---
           title: AI洞察日报
@@ -50,151 +61,50 @@ jobs:
           
           欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
           
-          ## 浏览内容
-          - [📅 最新日报](/cn/)
-          - [🏷️ 按标签浏览](/cn/tags/)
-          - [📂 按分类浏览](/cn/categories/)
+          ## 最新日报
+          
+          浏览左侧的日期导航查看最新的AI日报内容。
           EOF
           
-          # 处理日报文件到cn目录
-          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | while read -r SOURCE_FILE_PATH; do
+          # 处理日报文件
+          find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
               DATE_PART=$(echo "$FILENAME" | sed -E 's/([0-9]{4}-[0-9]{2}-[0-9]{2}).*/\1/')
               YEAR_MONTH=$(echo "$DATE_PART" | cut -c1-7)
               
-              # 按现有结构创建目录 content/cn/YYYY-MM/
+              # 按年月创建目录
               TARGET_DIR="content/cn/${YEAR_MONTH}"
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
               echo "--- 处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
-              # 检查是否需要更新
-              NEEDS_UPDATE=true
-              if [ -f "$TARGET_FILE" ]; then
-                SOURCE_CONTENT=$(cat "$SOURCE_FILE_PATH" 2>/dev/null || echo "")
-                TARGET_CONTENT=$(tail -n +20 "$TARGET_FILE" 2>/dev/null || echo "")
-                if [ "$SOURCE_CONTENT" = "$TARGET_CONTENT" ]; then
-                  echo "文件内容相同，跳过更新"
-                  NEEDS_UPDATE=false
-                fi
-              fi
-              
-              if [ "$NEEDS_UPDATE" = true ]; then
-                # 读取内容进行智能分析
-                CONTENT=$(cat "$SOURCE_FILE_PATH")
-                
-                # 基础标签和分类
-                TAGS='["AI", "人工智能", "技术", "日报"'
-                CATEGORIES='["AI日报"'
-                
-                # 智能标签分析（保持现有逻辑，添加更多）
-                if echo "$CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|o1"; then
-                  TAGS="${TAGS}, \"OpenAI\", \"ChatGPT\", \"GPT\""
-                  CATEGORIES="${CATEGORIES}, \"大模型\""
-                fi
-                if echo "$CONTENT" | grep -qi "谷歌\|Google\|Gemini\|Bard"; then
-                  TAGS="${TAGS}, \"Google\", \"谷歌\", \"Gemini\""
-                  CATEGORIES="${CATEGORIES}, \"科技巨头\""
-                fi
-                if echo "$CONTENT" | grep -qi "微软\|Microsoft\|Copilot"; then
-                  TAGS="${TAGS}, \"微软\", \"Microsoft\", \"Copilot\""
-                  CATEGORIES="${CATEGORIES}, \"科技巨头\""
-                fi
-                if echo "$CONTENT" | grep -qi "Meta\|Facebook"; then
-                  TAGS="${TAGS}, \"Meta\", \"Facebook\""
-                  CATEGORIES="${CATEGORIES}, \"科技巨头\""
-                fi
-                if echo "$CONTENT" | grep -qi "苹果\|Apple"; then
-                  TAGS="${TAGS}, \"苹果\", \"Apple\""
-                  CATEGORIES="${CATEGORIES}, \"科技巨头\""
-                fi
-                if echo "$CONTENT" | grep -qi "亚马逊\|Amazon"; then
-                  TAGS="${TAGS}, \"亚马逊\", \"Amazon\""
-                  CATEGORIES="${CATEGORIES}, \"科技巨头\""
-                fi
-                if echo "$CONTENT" | grep -qi "自动驾驶\|无人驾驶\|特斯拉\|Tesla"; then
-                  TAGS="${TAGS}, \"自动驾驶\", \"特斯拉\""
-                  CATEGORIES="${CATEGORIES}, \"自动驾驶\""
-                fi
-                if echo "$CONTENT" | grep -qi "机器学习\|深度学习\|ML\|DL\|神经网络"; then
-                  TAGS="${TAGS}, \"机器学习\", \"深度学习\""
-                  CATEGORIES="${CATEGORIES}, \"机器学习\""
-                fi
-                if echo "$CONTENT" | grep -qi "芯片\|GPU\|CPU\|英伟达\|NVIDIA\|AMD"; then
-                  TAGS="${TAGS}, \"芯片\", \"硬件\", \"NVIDIA\""
-                  CATEGORIES="${CATEGORIES}, \"硬件\""
-                fi
-                if echo "$CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元\|估值"; then
-                  TAGS="${TAGS}, \"投资\", \"融资\", \"商业\""
-                  CATEGORIES="${CATEGORIES}, \"商业\""
-                fi
-                if echo "$CONTENT" | grep -qi "开源\|GitHub\|代码\|开发者"; then
-                  TAGS="${TAGS}, \"开源\", \"GitHub\", \"开发者\""
-                  CATEGORIES="${CATEGORIES}, \"开源\""
-                fi
-                if echo "$CONTENT" | grep -qi "研究\|论文\|学术\|大学\|实验室"; then
-                  TAGS="${TAGS}, \"研究\", \"学术\", \"论文\""
-                  CATEGORIES="${CATEGORIES}, \"研究\""
-                fi
-                if echo "$CONTENT" | grep -qi "机器人\|Robot\|人形机器人"; then
-                  TAGS="${TAGS}, \"机器人\", \"人形机器人\""
-                  CATEGORIES="${CATEGORIES}, \"机器人\""
-                fi
-                if echo "$CONTENT" | grep -qi "语言模型\|LLM\|大模型\|生成式AI"; then
-                  TAGS="${TAGS}, \"语言模型\", \"大模型\", \"生成式AI\""
-                  CATEGORIES="${CATEGORIES}, \"语言模型\""
-                fi
-                if echo "$CONTENT" | grep -qi "图像生成\|文生图\|Midjourney\|DALL-E\|Stable Diffusion"; then
-                  TAGS="${TAGS}, \"图像生成\", \"文生图\", \"AIGC\""
-                  CATEGORIES="${CATEGORIES}, \"图像生成\""
-                fi
-                if echo "$CONTENT" | grep -qi "视频生成\|Sora\|视频AI"; then
-                  TAGS="${TAGS}, \"视频生成\", \"Sora\", \"视频AI\""
-                  CATEGORIES="${CATEGORIES}, \"视频生成\""
-                fi
-                if echo "$CONTENT" | grep -qi "医疗\|医学\|健康\|诊断"; then
-                  TAGS="${TAGS}, \"医疗AI\", \"医学\", \"健康\""
-                  CATEGORIES="${CATEGORIES}, \"医疗\""
-                fi
-                if echo "$CONTENT" | grep -qi "教育\|学习\|培训"; then
-                  TAGS="${TAGS}, \"教育AI\", \"学习\""
-                  CATEGORIES="${CATEGORIES}, \"教育\""
-                fi
-                if echo "$CONTENT" | grep -qi "金融\|银行\|支付"; then
-                  TAGS="${TAGS}, \"金融AI\", \"银行\""
-                  CATEGORIES="${CATEGORIES}, \"金融\""
-                fi
-                
-                TAGS="${TAGS}]"
-                CATEGORIES="${CATEGORIES}]"
-                
-                # 生成增强的Front Matter
-                cat > "$TARGET_FILE" << EOF
+              # 生成简单的Front Matter
+              cat > "$TARGET_FILE" << EOF
           ---
           title: "AI洞察日报 - ${DATE_PART}"
           date: ${DATE_PART}T08:00:00+08:00
-          draft: false
-          tags: ${TAGS}
-          categories: ${CATEGORIES}
           weight: 1
           type: docs
           sidebar:
             open: true
-          description: "${DATE_PART}的AI行业动态、技术发展和重要资讯汇总"
           ---
           
+          ## AI洞察日报 ${DATE_PART}
+          
+          > \`AI资讯\` | \`每日早读\` | \`全网数据聚合\` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
+          
           EOF
-                
-                # 添加原始内容
-                cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-                echo "✅ 文件已更新: ${TARGET_FILE}"
-                
-                # 创建或更新月份索引文件
-                MONTH_INDEX="${TARGET_DIR}/_index.md"
-                if [ ! -f "$MONTH_INDEX" ]; then
-                  cat > "$MONTH_INDEX" << EOF
+              
+              # 添加原始内容（跳过第一行标题）
+              tail -n +2 "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
+              echo "✅ 文件已处理: ${TARGET_FILE}"
+              
+              # 创建年月索引文件
+              MONTH_INDEX="${TARGET_DIR}/_index.md"
+              if [ ! -f "$MONTH_INDEX" ]; then
+                cat > "$MONTH_INDEX" << EOF
           ---
           title: "${YEAR_MONTH} AI日报"
           date: ${YEAR_MONTH}-01T00:00:00+08:00
@@ -202,34 +112,36 @@ jobs:
           sidebar:
             open: true
           weight: 1
-          description: "${YEAR_MONTH}月份AI行业动态汇总"
           ---
           
           # ${YEAR_MONTH} AI洞察日报
           
-          本月的AI行业动态和技术趋势汇总，包括：
-          - 🔥 行业热点新闻  
-          - 🛠️ 技术产品发布
-          - 📊 市场投资动态
-          - 🧠 学术研究进展
-          - 💡 开源项目推荐
+          本月的AI行业动态和技术趋势汇总。
           EOF
-                  echo "✅ 月份索引已创建: ${MONTH_INDEX}"
-                fi
+                echo "✅ 月份索引已创建: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "--- 增强内容处理完成 ---"
+          echo "--- 内容处理完成 ---"
           
-          # 显示最终目录结构
-          echo "=== 最终目录结构 ==="
-          find content/cn -type f -name "*.md" | head -10
+          # 显示目录结构
+          echo "=== 目录结构 ==="
+          find content -type f -name "*.md" | head -10
           
-          # 统计信息
-          echo "=== 统计信息 ==="
-          echo "总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
-          echo "最新文件: $(find content/cn -name "*.md" -type f | sort | tail -3)"
+          # 检查关键文件
+          echo "=== 检查关键文件 ==="
+          if [ -f "content/_index.md" ]; then
+            echo "✅ 根目录首页存在"
+          else
+            echo "❌ 根目录首页缺失"
+          fi
+          
+          if [ -f "content/cn/_index.md" ]; then
+            echo "✅ cn目录首页存在"
+          else
+            echo "❌ cn目录首页缺失"
+          fi
 
       - name: Commit and push changes
         run: |
@@ -240,20 +152,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🚀 增强内容同步：智能标签+丰富分类 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🚨 紧急修复：创建基础内容结构 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 增强内容已同步并推送到仓库"
+            echo "✅ 内容已同步并推送到仓库"
           fi
-
-      - name: Notify completion
-        if: always()
-        run: |
-          echo "🎉 增强版Hextra-AI-Insight-Daily 内容同步完成！"
-          echo "✨ 新功能:"
-          echo "   🏷️ 智能标签识别 (OpenAI, Google, 微软等)"
-          echo "   📂 丰富分类系统 (大模型, 硬件, 商业等)"  
-          echo "   🖼️ 图片内容保留"
-          echo "   📱 侧边栏导航"
-          echo "📊 统计信息："
-          find content/cn -name "*.md" -type f | wc -l | xargs echo "总文件数："
-          echo "🔗 网站将在几分钟内自动更新"
