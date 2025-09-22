@@ -28,17 +28,20 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Process content for Hextra
+      - name: Process content for Hextra with sidebar
         run: |
-          echo "🔍 开始处理内容..."
+          echo "🔍 开始处理内容并配置侧边栏..."
           
           # 确保目标目录存在
           mkdir -p content/cn
           
-          # 创建cn主页
+          # 创建cn主页，配置为文档类型以显示侧边栏
           cat > content/cn/_index.md << 'EOF'
           ---
           title: AI洞察日报
+          type: docs
+          sidebar:
+            open: true
           ---
           
           # AI洞察日报
@@ -47,7 +50,7 @@ jobs:
           
           ## 最新日报
           
-          浏览下方的月份目录查看最新的AI日报内容。
+          浏览左侧的日期导航查看最新的AI日报内容。
           EOF
           
           # 处理日报文件
@@ -64,12 +67,15 @@ jobs:
               
               echo "--- 处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
-              # 生成简单的Front Matter
+              # 生成包含侧边栏配置的Front Matter
               cat > "$TARGET_FILE" << EOF
           ---
           title: "AI洞察日报 - ${DATE_PART}"
           date: ${DATE_PART}T08:00:00+08:00
           weight: 1
+          type: docs
+          sidebar:
+            open: true
           ---
           
           EOF
@@ -78,7 +84,7 @@ jobs:
               cat "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
               echo "✅ 文件已处理: ${TARGET_FILE}"
               
-              # 创建年月索引文件
+              # 创建年月索引文件，配置侧边栏
               MONTH_INDEX="${TARGET_DIR}/_index.md"
               if [ ! -f "$MONTH_INDEX" ]; then
                 cat > "$MONTH_INDEX" << EOF
@@ -86,6 +92,9 @@ jobs:
           title: "${YEAR_MONTH} AI日报"
           date: ${YEAR_MONTH}-01T00:00:00+08:00
           weight: 1
+          type: docs
+          sidebar:
+            open: true
           ---
           
           # ${YEAR_MONTH} AI洞察日报
@@ -102,6 +111,15 @@ jobs:
           # 显示目录结构
           echo "=== 目录结构 ==="
           find content -type f -name "*.md" | head -10
+          
+          # 检查关键文件
+          echo "=== 检查关键文件 ==="
+          if [ -f "content/cn/_index.md" ]; then
+            echo "✅ 主页文件存在"
+            head -10 content/cn/_index.md
+          else
+            echo "❌ 主页文件缺失"
+          fi
 
       - name: Commit and push changes
         run: |
@@ -112,7 +130,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🤖 同步AI日报内容 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🔧 配置侧边栏导航 - $(date +%Y-%m-%d-%H-%M)"
             git push
             echo "✅ 内容已同步并推送到仓库"
           fi
