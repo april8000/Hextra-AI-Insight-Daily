@@ -1,6 +1,6 @@
-/* AI洞察日报 - 稳定版样式 */
+/* AI洞察日报 - 增强版视觉样式 */
 
-/* 1. 基础样式 */
+/* 1. 基础样式优化 */
 h1:first-of-type {
   display: none;
 }
@@ -8,94 +8,270 @@ h1:first-of-type {
 .content {
   max-width: none !important;
   overflow: visible !important;
+  line-height: 1.8 !important;
 }
 
-/* 2. 分类标签美化 */
+/* 2. 分类标签超级美化 */
 .content blockquote {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.05));
-  border-left: 4px solid #ff9900;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  margin: 1.5rem 0;
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05));
+  border: none;
+  border-left: 5px solid #ff9900;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(255, 153, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.content blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff9900, #ffaa33, #ff9900);
+  border-radius: 12px 12px 0 0;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
 }
 
 .content blockquote p {
   margin: 0 !important;
   color: #ff9900 !important;
-  font-weight: 500;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  text-shadow: 0 1px 2px rgba(255, 153, 0, 0.3);
 }
 
 .content blockquote code {
-  background-color: rgba(255, 153, 0, 0.2) !important;
+  background-color: rgba(255, 153, 0, 0.25) !important;
   color: #ff6600 !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  font-weight: 600 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(255, 153, 0, 0.4) !important;
+  box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
 }
 
-/* 3. 新闻条目美化 */
+/* 3. 新闻条目超级美化 */
 .content ol li,
 .content ul li {
-  margin-bottom: 1.5rem !important;
-  padding: 1rem !important;
-  background: rgba(255, 153, 0, 0.03) !important;
-  border-radius: 8px !important;
-  border-left: 3px solid #ff9900 !important;
-  transition: all 0.3s ease !important;
+  margin-bottom: 2rem !important;
+  padding: 1.5rem !important;
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.05), rgba(255, 153, 0, 0.02)) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 153, 0, 0.2) !important;
+  border-left: 4px solid #ff9900 !important;
+  transition: all 0.4s ease !important;
+  position: relative !important;
+  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.1) !important;
 }
 
 .content ol li:hover,
 .content ul li:hover {
-  background: rgba(255, 153, 0, 0.08) !important;
-  transform: translateX(5px) !important;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2) !important;
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.12), rgba(255, 153, 0, 0.05)) !important;
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 8px 32px rgba(255, 153, 0, 0.25) !important;
+  border-left-width: 6px !important;
 }
 
-/* 4. 标题美化 */
+.content ol li::before,
+.content ul li::before {
+  content: '📰';
+  position: absolute;
+  top: -8px;
+  left: 1rem;
+  background: #ff9900;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
+}
+
+/* 4. 标题超级美化 */
 .content h3 {
   color: #ff9900 !important;
-  border-bottom: 2px solid rgba(255, 153, 0, 0.3);
-  padding-bottom: 0.5rem;
-  margin-top: 2rem !important;
-  margin-bottom: 1rem !important;
+  background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
+  border: none;
+  border-left: 6px solid #ff9900;
+  padding: 1rem 1.5rem !important;
+  border-radius: 8px;
+  margin: 2.5rem 0 1.5rem 0 !important;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.15);
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
 }
 
-/* 5. 链接和文本美化 */
+.content h3::before {
+  content: '🔥';
+  margin-right: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.content h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #ff9900, transparent);
+}
+
+/* 5. 链接超级美化 */
 .content a {
   color: #ff9900 !important;
   text-decoration: none !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid transparent !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
 }
 
 .content a:hover {
-  color: #ffaa33 !important;
-  text-decoration: underline !important;
+  color: #ffffff !important;
+  background: linear-gradient(45deg, #ff9900, #ffaa33) !important;
+  border-bottom-color: transparent !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4) !important;
 }
 
+.content a::after {
+  content: ' 🔗';
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* 6. 强调文本美化 */
 .content strong {
   color: #ff9900 !important;
-  background: rgba(255, 153, 0, 0.1) !important;
-  padding: 1px 3px !important;
-  border-radius: 3px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(45deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 6. 图片优化 */
+/* 7. 图片超级美化 */
 .content img {
-  margin: 1rem auto !important;
-  border-radius: 8px !important;
+  margin: 2rem auto !important;
+  border-radius: 16px !important;
   max-width: 100% !important;
   height: auto !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.4s ease !important;
+  border: 3px solid rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 7. 暗色主题 */
+.content img:hover {
+  transform: scale(1.03) !important;
+  box-shadow: 0 20px 60px rgba(255, 153, 0, 0.3) !important;
+  border-color: #ff9900 !important;
+}
+
+/* 8. 代码美化 */
+.content code {
+  background: linear-gradient(45deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.08)) !important;
+  color: #ff6600 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 0.9em !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 153, 0, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(255, 153, 0, 0.2) !important;
+}
+
+/* 9. 分隔线美化 */
+.content hr {
+  border: none !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, transparent, #ff9900, transparent) !important;
+  margin: 3rem 0 !important;
+  border-radius: 2px !important;
+}
+
+/* 10. 暗色主题超级优化 */
+html.dark .content {
+  color: #f0f0f0 !important;
+}
+
+html.dark .content h2,
+html.dark .content h3,
+html.dark .content h4 {
+  color: #ff9900 !important;
+}
+
 html.dark .content ol li,
 html.dark .content ul li {
-  background: rgba(255, 153, 0, 0.08) !important;
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.12), rgba(255, 153, 0, 0.05)) !important;
   color: #f0f0f0 !important;
+  border-color: rgba(255, 153, 0, 0.3) !important;
 }
 
 html.dark .content ol li:hover,
 html.dark .content ul li:hover {
-  background: rgba(255, 153, 0, 0.15) !important;
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.2), rgba(255, 153, 0, 0.08)) !important;
+}
+
+/* 11. 响应式超级优化 */
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem !important;
+  }
+  
+  .content ol li,
+  .content ul li {
+    padding: 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .content blockquote {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .content h3 {
+    font-size: 1.1rem !important;
+    padding: 0.8rem 1rem !important;
+  }
+}
+
+/* 12. 加载动画 */
+.content {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 13. 特殊效果 */
+.content ol li:nth-child(odd),
+.content ul li:nth-child(odd) {
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.08), rgba(255, 153, 0, 0.03)) !important;
+}
+
+.content ol li:nth-child(even),
+.content ul li:nth-child(even) {
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.05), rgba(255, 153, 0, 0.02)) !important;
 }
