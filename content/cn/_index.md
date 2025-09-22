@@ -1,5 +1,8 @@
 ---
 title: AI洞察日报
+type: docs
+sidebar:
+  open: true
 ---
 
 # AI洞察日报
@@ -8,4 +11,4 @@ title: AI洞察日报
 
 ## 最新日报
 
-浏览下方的月份目录查看最新的AI日报内容。
+浏览左侧的日期导航查看最新的AI日报内容。
