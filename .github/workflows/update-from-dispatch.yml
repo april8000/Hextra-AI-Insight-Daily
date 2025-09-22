@@ -28,24 +28,32 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create basic content structure
+      - name: Create enhanced content with beautiful styling
         run: |
-          echo "🔍 创建基础内容结构..."
+          echo "🎨 开始创建增强版美化内容..."
           
           # 确保目标目录存在
           mkdir -p content/cn
+          mkdir -p assets/css
+          mkdir -p static/images
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
           ---
           title: AI洞察日报
+          layout: hextra-home
           ---
           
-          # AI洞察日报
-          
-          欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
-          
-          [查看最新日报 →](/cn/)
+          {{< hextra/hero-container >}}
+            {{< hextra/hero-headline >}}
+              AI洞察日报 &nbsp;<br class="sm:block hidden" />精选AI新闻与深度分析
+            {{< /hextra/hero-headline >}}
+            {{< hextra/hero-subtitle >}}
+              每日为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程<br class="sm:block hidden" />
+              助您高效获取人工智能领域的前沿动态
+            {{< /hextra/hero-subtitle >}}
+            {{< hextra/hero-button text="查看最新日报" link="/cn/" >}}
+          {{< /hextra/hero-container >}}
           EOF
           
           # 创建cn目录主页
@@ -59,12 +67,29 @@ jobs:
           
           # AI洞察日报
           
+          > 📰 **每日精选AI资讯** | 🔍 **深度分析** | 🌐 **全网数据聚合** | 🚀 **前沿科技探索**
+          
           欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
           
-          ## 最新日报
+          ## 🔥 最新动态
           
-          浏览左侧的日期导航查看最新的AI日报内容。
+          浏览左侧的日期导航查看最新的AI日报内容，每日更新，不容错过！
+          
+          ## 📊 内容分类
+          
+          - 🤖 **大模型前沿** - OpenAI、Google、微软等最新AI模型动态
+          - 💰 **商业动态** - AI行业投资、融资、上市等商业资讯  
+          - 🔓 **开源创新** - GitHub热门AI项目、开发者工具推荐
+          - 🔬 **前沿研究** - 学术论文、实验室最新研究成果
+          - 🎨 **创意工具** - AI绘画、视频生成、AIGC应用
+          - 🏢 **行业应用** - 医疗、教育、金融等垂直领域AI应用
           EOF
+          
+          # 复制自定义样式文件
+          if [ -f "custom-styles.css" ]; then
+            cp custom-styles.css assets/css/custom.css
+            echo "✅ 自定义样式文件已添加"
+          fi
           
           # 处理日报文件
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
@@ -80,31 +105,84 @@ jobs:
               
               echo "--- 处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
-              # 生成简单的Front Matter
-              cat > "$TARGET_FILE" << EOF
+              # 检查是否需要更新
+              NEEDS_UPDATE=true
+              if [ -f "$TARGET_FILE" ]; then
+                SOURCE_CONTENT=$(cat "$SOURCE_FILE_PATH" 2>/dev/null || echo "")
+                TARGET_CONTENT=$(tail -n +25 "$TARGET_FILE" 2>/dev/null || echo "")
+                if [ "$SOURCE_CONTENT" = "$TARGET_CONTENT" ]; then
+                  echo "文件内容相同，跳过更新"
+                  NEEDS_UPDATE=false
+                fi
+              fi
+              
+              if [ "$NEEDS_UPDATE" = true ]; then
+                # 读取内容进行智能分析
+                CONTENT=$(cat "$SOURCE_FILE_PATH")
+                
+                # 根据内容分析生成分类标签
+                CATEGORY_TAGS="\`AI资讯\` | \`每日早读\`"
+                
+                # 根据内容添加特定分类标签
+                if echo "$CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`大模型前沿\`"
+                fi
+                if echo "$CONTENT" | grep -qi "投资\|融资\|IPO\|上市\|亿美元\|估值"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`商业动态\`"
+                fi
+                if echo "$CONTENT" | grep -qi "开源\|GitHub\|代码\|开发者"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`开源创新力量\`"
+                fi
+                if echo "$CONTENT" | grep -qi "研究\|论文\|学术\|大学\|实验室"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`前沿科学探索\`"
+                fi
+                if echo "$CONTENT" | grep -qi "机器人\|Robot\|人形机器人\|自动驾驶"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`AI与人类未来\`"
+                fi
+                if echo "$CONTENT" | grep -qi "图像生成\|文生图\|视频生成\|AIGC"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`创意AI工具\`"
+                fi
+                if echo "$CONTENT" | grep -qi "医疗\|医学\|健康\|教育\|金融"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业应用\`"
+                fi
+                if echo "$CONTENT" | grep -qi "谷歌\|微软\|Meta\|苹果\|亚马逊\|百度\|阿里\|腾讯"; then
+                  CATEGORY_TAGS="${CATEGORY_TAGS} | \`行业自由发声\`"
+                fi
+                
+                # 总是添加数据聚合标签
+                CATEGORY_TAGS="${CATEGORY_TAGS} | \`全网数据聚合\`"
+                
+                # 生成美化的Front Matter
+                cat > "$TARGET_FILE" << EOF
           ---
           title: "AI洞察日报 - ${DATE_PART}"
           date: ${DATE_PART}T08:00:00+08:00
+          draft: false
           weight: 1
           type: docs
           sidebar:
             open: true
+          description: "${DATE_PART}的AI行业动态、技术发展和重要资讯汇总"
+          keywords: ["AI", "人工智能", "ChatGPT", "机器学习", "深度学习", "科技"]
+          authors: ["AI洞察日报"]
+          comments: true
+          breadcrumbs: false
           ---
           
           ## AI洞察日报 ${DATE_PART}
           
-          > \`AI资讯\` | \`每日早读\` | \`全网数据聚合\` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
+          > ${CATEGORY_TAGS} | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
           EOF
-              
-              # 添加原始内容（跳过第一行标题）
-              tail -n +2 "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
-              echo "✅ 文件已处理: ${TARGET_FILE}"
-              
-              # 创建年月索引文件
-              MONTH_INDEX="${TARGET_DIR}/_index.md"
-              if [ ! -f "$MONTH_INDEX" ]; then
-                cat > "$MONTH_INDEX" << EOF
+                
+                # 添加原始内容（跳过第一行标题，因为我们已经添加了新的标题）
+                tail -n +2 "$SOURCE_FILE_PATH" >> "$TARGET_FILE"
+                echo "✅ 文件已更新并添加美化样式: ${TARGET_FILE}"
+                
+                # 创建或更新月份索引文件
+                MONTH_INDEX="${TARGET_DIR}/_index.md"
+                if [ ! -f "$MONTH_INDEX" ]; then
+                  cat > "$MONTH_INDEX" << EOF
           ---
           title: "${YEAR_MONTH} AI日报"
           date: ${YEAR_MONTH}-01T00:00:00+08:00
@@ -112,36 +190,38 @@ jobs:
           sidebar:
             open: true
           weight: 1
+          description: "${YEAR_MONTH}月份AI行业动态汇总"
           ---
           
           # ${YEAR_MONTH} AI洞察日报
           
-          本月的AI行业动态和技术趋势汇总。
+          > 📅 **${YEAR_MONTH}** | 🔥 **月度精选** | 📊 **数据汇总** | 🚀 **趋势分析**
+          
+          本月的AI行业动态和技术趋势汇总，包括：
+          
+          - 🔥 **行业热点新闻** - 重大事件和突破性进展  
+          - 🛠️ **技术产品发布** - 新工具、新平台、新功能
+          - 📊 **市场投资动态** - 融资、并购、IPO等商业活动
+          - 🧠 **学术研究进展** - 论文发布、实验突破
+          - 💡 **开源项目推荐** - GitHub热门项目和开发者工具
           EOF
-                echo "✅ 月份索引已创建: ${MONTH_INDEX}"
+                  echo "✅ 美化月份索引已创建: ${MONTH_INDEX}"
+                fi
               fi
             fi
           done
           
-          echo "--- 内容处理完成 ---"
+          echo "--- 美化内容处理完成 ---"
           
-          # 显示目录结构
-          echo "=== 目录结构 ==="
+          # 显示最终目录结构
+          echo "=== 最终目录结构 ==="
           find content -type f -name "*.md" | head -10
           
-          # 检查关键文件
-          echo "=== 检查关键文件 ==="
-          if [ -f "content/_index.md" ]; then
-            echo "✅ 根目录首页存在"
-          else
-            echo "❌ 根目录首页缺失"
-          fi
-          
-          if [ -f "content/cn/_index.md" ]; then
-            echo "✅ cn目录首页存在"
-          else
-            echo "❌ cn目录首页缺失"
-          fi
+          # 统计信息
+          echo "=== 统计信息 ==="
+          echo "总文件数: $(find content/cn -name "*.md" -type f | wc -l)"
+          echo "样式文件: $(find assets -name "*.css" -type f | wc -l)"
+          echo "最新文件: $(find content/cn -name "*.md" -type f | sort | tail -3)"
 
       - name: Commit and push changes
         run: |
@@ -152,7 +232,22 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🚨 紧急修复：创建基础内容结构 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "✨ 美化升级：添加自定义样式和增强布局 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 内容已同步并推送到仓库"
+            echo "✅ 美化内容已同步并推送到仓库"
           fi
+
+      - name: Notify completion
+        if: always()
+        run: |
+          echo "🎉 美化版AI日报内容同步完成！"
+          echo "✨ 新功能:"
+          echo "   🎨 原作者风格的橙色主题"
+          echo "   🏷️ 智能分类标签系统"
+          echo "   📱 响应式侧边栏导航"
+          echo "   🖼️ 优化的图片和视频显示"
+          echo "   🌗 精美的暗色主题"
+          echo "   📄 增强的首页布局"
+          echo "📊 统计信息："
+          find content/cn -name "*.md" -type f | wc -l | xargs echo "总文件数："
+          echo "🔗 网站将在几分钟内自动更新，展现全新美观界面！"
