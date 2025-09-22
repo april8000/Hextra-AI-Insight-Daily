@@ -2,7 +2,7 @@
 name: Deploy Hugo site to Pages
 
 on:
-  # 当内容同步工作流完成时触发
+  # 当内容同步工作流完成时自动触发
   workflow_run:
     workflows: ["Update Content from Backend Dispatch"]
     types:
@@ -72,14 +72,18 @@ jobs:
             echo "Themes directory already exists"
           fi
       
-      - name: Check content
+      - name: Check content structure
         run: |
-          echo "=== 检查内容目录 ==="
+          echo "=== 检查内容目录结构 ==="
           ls -la content/ || echo "content目录不存在"
-          ls -la content/docs/ || echo "content/docs目录不存在"
+          ls -la content/cn/ || echo "content/cn目录不存在"
+          ls -la content/cn/*/ || echo "没有月份目录"
           
           echo "=== 统计内容文件 ==="
           find content -name "*.md" -type f | wc -l | xargs echo "找到markdown文件数量:"
+          
+          echo "=== 最新日报文件 ==="
+          find content/cn -name "*.md" -type f | sort | tail -5
       
       - name: Build with Hugo
         env:
@@ -95,6 +99,8 @@ jobs:
           if [ -d "public" ] && [ "$(ls -A public)" ]; then
             echo "Build successful!"
             ls -la public/
+            echo "=== 检查生成的日报页面 ==="
+            find public -path "*/cn/*" -name "*.html" | head -5
           else
             echo "Build failed - public directory is empty or missing"
             exit 1
