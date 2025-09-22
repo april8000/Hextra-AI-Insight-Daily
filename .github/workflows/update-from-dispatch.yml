@@ -28,20 +28,20 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup author-style content with categories
+      - name: Setup enhanced category content
         run: |
-          echo "🎨 开始按原作者风格设置内容（超安全版）..."
+          echo "🎨 开始创建增强分类导航版本..."
           
           # 确保所有必要目录存在
           mkdir -p content/cn
           mkdir -p assets/css
           mkdir -p static/images
           
-          # 创建原作者风格的CSS
+          # 创建增强版CSS
           cat > assets/css/custom.css << 'EOF'
-          /* AI洞察日报 - 原作者风格 */
+          /* AI洞察日报 - 增强分类导航版 */
           
-          /* 1. 基础样式 - 参考原作者项目 */
+          /* 1. 基础样式 */
           h1:first-of-type {
             display: none;
           }
@@ -54,11 +54,8 @@ jobs:
             word-break: break-word;
           }
           
-          /* 2. 核心色调定义 - 橙色主题 #ff9900 */
+          /* 2. 核心色调定义 */
           :root {
-            --primary-hue: 36deg;
-            --primary-saturation: 100%;
-            --primary-lightness: 50%;
             --primary-color: #ff9900;
             --primary-light: #ffaa33;
             --primary-dark: #e68800;
@@ -91,7 +88,7 @@ jobs:
             border: 1px solid rgba(255, 153, 0, 0.3) !important;
           }
           
-          /* 4. 新闻条目浅色模式样式 */
+          /* 4. 新闻条目样式 */
           .content ol li,
           .content ul li {
             margin-bottom: 1.5rem !important;
@@ -110,16 +107,25 @@ jobs:
             box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15) !important;
           }
           
-          /* 5. 标题浅色模式样式 */
+          /* 5. 分类标题样式 - 重点优化 */
           .content h3 {
             color: var(--primary-color) !important;
             border-bottom: 2px solid rgba(255, 153, 0, 0.2);
-            padding-bottom: 0.5rem;
-            margin: 2rem 0 1rem 0 !important;
+            padding: 0.8rem 1.2rem !important;
+            margin: 2.5rem 0 1.5rem 0 !important;
             font-weight: 700 !important;
+            background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
+            border-radius: 8px;
+            position: relative;
           }
           
-          /* 6. 链接浅色模式样式 */
+          .content h3::before {
+            content: '📂';
+            margin-right: 0.5rem;
+            font-size: 1.1em;
+          }
+          
+          /* 6. 链接样式 */
           .content a {
             color: var(--primary-color) !important;
             text-decoration: none !important;
@@ -132,7 +138,7 @@ jobs:
             text-decoration: underline !important;
           }
           
-          /* 7. 强调文本浅色模式 */
+          /* 7. 强调文本 */
           .content strong {
             color: var(--primary-color) !important;
             font-weight: 700 !important;
@@ -147,7 +153,7 @@ jobs:
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
           }
           
-          /* 9. 代码块浅色模式 */
+          /* 9. 代码样式 */
           .content code {
             background-color: rgba(255, 153, 0, 0.1) !important;
             color: var(--primary-dark) !important;
@@ -156,38 +162,7 @@ jobs:
             font-size: 0.9em !important;
           }
           
-          /* 10. 深色模式样式 - 完全不同的配色 */
-          html.dark {
-            --primary-hue: 36deg;
-            --primary-saturation: 100%;
-            --primary-lightness: 50%;
-          }
-          
-          /* 深色模式基础布局 */
-          .hextra-footer:is(html[class~=dark] *),
-          .nav-container:is(html[class~=dark] *),
-          body:is(html[class~=dark] *) {
-            background-color: #1c1c1c;
-          }
-          
-          .nav-container-blur:is(html[class~=dark] *) {
-            background-color: rgba(28, 28, 28, 0.8) !important;
-          }
-          
-          /* 深色模式导航栏 */
-          .nav-container a:is(html[class~=dark] *),
-          .nav-container svg:is(html[class~=dark] *) {
-            color: #ffffff;
-            transition: color 0.2s ease-in-out;
-          }
-          
-          .nav-container a:hover:is(html[class~=dark] *),
-          .nav-container a:hover svg:is(html[class~=dark] *),
-          .nav-container button:hover svg:is(html[class~=dark] *) {
-            color: #ff9900 !important;
-          }
-          
-          /* 深色模式分类标签 */
+          /* 10. 深色模式样式 */
           html.dark .content blockquote {
             background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
             border-left-color: #ff9900 !important;
@@ -204,7 +179,6 @@ jobs:
             border-color: rgba(255, 153, 0, 0.4) !important;
           }
           
-          /* 深色模式新闻条目 */
           html.dark .content ol li,
           html.dark .content ul li {
             background: rgba(255, 153, 0, 0.08) !important;
@@ -219,7 +193,6 @@ jobs:
             box-shadow: 0 6px 20px rgba(255, 153, 0, 0.25) !important;
           }
           
-          /* 深色模式标题 */
           html.dark .content h2,
           html.dark .content h3,
           html.dark .content h4 {
@@ -227,7 +200,10 @@ jobs:
             border-bottom-color: rgba(255, 153, 0, 0.3) !important;
           }
           
-          /* 深色模式链接 */
+          html.dark .content h3 {
+            background: linear-gradient(90deg, rgba(255, 153, 0, 0.15), transparent) !important;
+          }
+          
           html.dark .content a {
             color: #ff9900 !important;
           }
@@ -236,19 +212,16 @@ jobs:
             color: #ffaa33 !important;
           }
           
-          /* 深色模式强调文本 */
           html.dark .content strong {
             color: #ff9900 !important;
           }
           
-          /* 深色模式代码 */
           html.dark .content code {
             background-color: #2a2a2a !important;
             color: #ff9900 !important;
             border: 1px solid #444 !important;
           }
           
-          /* 深色模式图片 */
           html.dark .content img {
             box-shadow: 0 8px 32px rgba(255, 153, 0, 0.15) !important;
           }
@@ -267,10 +240,14 @@ jobs:
             .content blockquote {
               padding: 1rem !important;
             }
+            
+            .content h3 {
+              padding: 0.6rem 1rem !important;
+            }
           }
           EOF
           
-          echo "✅ 原作者风格CSS已创建"
+          echo "✅ 增强分类CSS已创建"
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
@@ -305,7 +282,7 @@ jobs:
           浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
           EOF
           
-          # 处理日报文件 - 超安全版本
+          # 处理日报文件 - 增强分类版本
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -317,50 +294,135 @@ jobs:
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
-              echo "--- 超安全处理文件: ${FILENAME} → ${TARGET_FILE} ---"
+              echo "--- 增强分类处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
               # 读取原始内容
               ORIGINAL_CONTENT=$(cat "$SOURCE_FILE_PATH")
               
-              # 生成分类标签（简化版本，避免复杂字符）
+              # 生成分类标签
               CATEGORY_TAGS="AI资讯 | 每日早读"
               
-              if echo "$ORIGINAL_CONTENT" | grep -qi "OpenAI\|ChatGPT\|GPT\|Claude\|Gemini"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | 大模型前沿"
-              fi
-              if echo "$ORIGINAL_CONTENT" | grep -qi "投资\|融资\|商业"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | 行业自由发声"
-              fi
-              if echo "$ORIGINAL_CONTENT" | grep -qi "开源\|GitHub"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | 开源创新力量"
-              fi
-              if echo "$ORIGINAL_CONTENT" | grep -qi "研究\|论文"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | 前沿科学探索"
-              fi
-              if echo "$ORIGINAL_CONTENT" | grep -qi "机器人\|自动驾驶"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | AI与人类未来"
-              fi
-              if echo "$ORIGINAL_CONTENT" | grep -qi "产品\|功能"; then
-                CATEGORY_TAGS="${CATEGORY_TAGS} | 产品与功能更新"
-              fi
+              # 分析内容并分类新闻
+              NEWS_BY_CATEGORY=""
               
-              CATEGORY_TAGS="${CATEGORY_TAGS} | 全网数据聚合"
-              
-              # 使用Python脚本安全地创建文件（避免sed的特殊字符问题）
+              # 使用Python来智能分类新闻内容
               python3 << PYTHON_EOF
+          import re
           import os
-          
-          # 准备数据
-          date_part = "${DATE_PART}"
-          category_tags = "${CATEGORY_TAGS}"
-          target_file = "${TARGET_FILE}"
           
           # 读取原始内容
           with open("${SOURCE_FILE_PATH}", "r", encoding="utf-8") as f:
-              original_content = f.read()
+              content = f.read()
           
-          # 创建Front Matter和内容
-          content = f'''---
+          # 基础分类标签
+          category_tags = "AI资讯 | 每日早读"
+          
+          # 智能分类检测
+          categories = []
+          if re.search(r'OpenAI|ChatGPT|GPT|Claude|Gemini|大模型|语言模型', content, re.IGNORECASE):
+              categories.append("大模型前沿")
+          if re.search(r'投资|融资|IPO|上市|估值|商业|公司', content, re.IGNORECASE):
+              categories.append("行业自由发声")
+          if re.search(r'开源|GitHub|代码|开发者|项目', content, re.IGNORECASE):
+              categories.append("开源创新力量")
+          if re.search(r'研究|论文|学术|科学|实验', content, re.IGNORECASE):
+              categories.append("前沿科学探索")
+          if re.search(r'机器人|自动驾驶|未来|AGI', content, re.IGNORECASE):
+              categories.append("AI与人类未来")
+          if re.search(r'产品|功能|更新|发布|工具', content, re.IGNORECASE):
+              categories.append("产品与功能更新")
+          
+          # 添加检测到的分类
+          for cat in categories:
+              category_tags += f" | {cat}"
+          category_tags += " | 全网数据聚合"
+          
+          # 将内容按段落分割，尝试按类别组织
+          paragraphs = content.split('\n\n')
+          
+          # 创建分类内容结构
+          structured_content = ""
+          
+          # 今日摘要部分
+          if any('摘要' in p or '概述' in p for p in paragraphs):
+              summary_content = next((p for p in paragraphs if '摘要' in p or '概述' in p), "")
+              if summary_content:
+                  structured_content += f"""### 今日摘要
+          
+          {summary_content}
+          
+          """
+          
+          # AI产品与功能更新
+          product_news = []
+          investment_news = []
+          research_news = []
+          other_news = []
+          
+          # 简单的内容分类逻辑
+          lines = content.split('\n')
+          current_news = ""
+          
+          for line in lines:
+              if line.strip() and (line.startswith('1.') or line.startswith('2.') or line.startswith('3.') or 
+                                 line.startswith('4.') or line.startswith('5.') or line.startswith('6.') or
+                                 line.startswith('- ') or line.startswith('* ')):
+                  if current_news:
+                      # 分类当前新闻
+                      if re.search(r'产品|功能|更新|发布|工具|平台', current_news, re.IGNORECASE):
+                          product_news.append(current_news)
+                      elif re.search(r'投资|融资|IPO|商业|公司|估值', current_news, re.IGNORECASE):
+                          investment_news.append(current_news)
+                      elif re.search(r'研究|论文|学术|科学', current_news, re.IGNORECASE):
+                          research_news.append(current_news)
+                      else:
+                          other_news.append(current_news)
+                  current_news = line
+              elif line.strip():
+                  current_news += '\n' + line
+          
+          # 处理最后一条新闻
+          if current_news:
+              if re.search(r'产品|功能|更新|发布|工具|平台', current_news, re.IGNORECASE):
+                  product_news.append(current_news)
+              elif re.search(r'投资|融资|IPO|商业|公司|估值', current_news, re.IGNORECASE):
+                  investment_news.append(current_news)
+              elif re.search(r'研究|论文|学术|科学', current_news, re.IGNORECASE):
+                  research_news.append(current_news)
+              else:
+                  other_news.append(current_news)
+          
+          # 构建分类内容
+          if product_news:
+              structured_content += "### 产品与功能更新\n\n"
+              for news in product_news:
+                  structured_content += f"{news}\n\n"
+          
+          if investment_news:
+              structured_content += "### 行业展望与社会影响\n\n"
+              for news in investment_news:
+                  structured_content += f"{news}\n\n"
+          
+          if research_news:
+              structured_content += "### 前沿研究\n\n"
+              for news in research_news:
+                  structured_content += f"{news}\n\n"
+          
+          if other_news:
+              structured_content += "### 今日AI资讯\n\n"
+              for news in other_news:
+                  structured_content += f"{news}\n\n"
+          
+          # 如果没有成功分类，使用原始内容
+          if not structured_content.strip():
+              structured_content = f"""### 今日AI资讯
+          
+          {content}
+          """
+          
+          # 创建最终文件内容
+          date_part = "${DATE_PART}"
+          final_content = f'''---
           linkTitle: {date_part[5:]}-日报
           title: "AI洞察日报 - {date_part}"
           date: {date_part}T08:00:00+08:00
@@ -378,14 +440,14 @@ jobs:
           
           > {category_tags} | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
-          {original_content}
+          {structured_content}
           '''
           
           # 写入文件
-          with open(target_file, "w", encoding="utf-8") as f:
-              f.write(content)
+          with open("${TARGET_FILE}", "w", encoding="utf-8") as f:
+              f.write(final_content)
           
-          print(f"✅ 文件已创建: {target_file}")
+          print(f"✅ 增强分类文件已创建: ${TARGET_FILE}")
           PYTHON_EOF
               
               # 创建月份索引
@@ -429,10 +491,10 @@ jobs:
             fi
           done
           
-          echo "--- 超安全版本设置完成 ---"
+          echo "--- 增强分类版本设置完成 ---"
           
           # 显示统计
-          echo "=== 超安全版本统计 ==="
+          echo "=== 增强分类统计 ==="
           echo "📄 内容文件: $(find content -name "*.md" -type f | wc -l)"
           echo "🎨 样式文件: $(find assets -name "*.css" -type f | wc -l)"
 
@@ -445,21 +507,21 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🔧 超安全版本：避免sed特殊字符问题 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "✨ 增强右侧分类导航：智能分类+结构化内容 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 超安全版本已推送"
+            echo "✅ 增强分类版本已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🎉 超安全版本完成！"
-          echo "✨ 核心改进:"
-          echo "   🛡️ 使用Python避免sed特殊字符问题"
-          echo "   🎨 深浅模式完全不同的配色方案"
-          echo "   📋 智能分类系统"
-          echo "   🔗 完整内容保留"
-          echo "   💫 原作者风格布局"
+          echo "🎉 增强分类导航版本完成！"
+          echo "✨ 核心功能:"
+          echo "   📂 右侧显示分类导航目录"
+          echo "   🎯 智能新闻分类和组织"
+          echo "   📋 结构化内容展示"
+          echo "   🎨 增强的分类标题样式"
+          echo "   🌗 深浅模式完美支持"
           echo "   📱 完美响应式设计"
-          echo "   ✅ 100%语法正确性保证"
+          echo "   🔍 更好的内容可读性"
           echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
