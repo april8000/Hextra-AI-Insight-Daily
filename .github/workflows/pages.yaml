@@ -37,7 +37,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.139.0
+      HUGO_VERSION: 0.135.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,16 +45,11 @@ jobs:
           fetch-depth: 0  # fetch all history for .GitInfo and .Lastmod
           submodules: false
       
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Setup Hugo (Fixed)
+      - name: Setup Hugo (Stable)
         run: |
           echo "Installing Hugo ${HUGO_VERSION}..."
           cd ${{ runner.temp }}
@@ -70,49 +65,114 @@ jobs:
           
           # 验证安装
           hugo version
-          which hugo
           
           echo "Hugo installation completed successfully!"
       
-      - name: Setup Hugo modules
+      - name: Setup Hextra theme (Direct Clone)
         run: |
-          echo "Initializing Hugo modules..."
+          echo "Setting up Hextra theme via direct clone..."
           
-          # 确保go.mod存在
-          if [ ! -f "go.mod" ]; then
-            echo "Creating go.mod..."
-            go mod init github.com/april8000/Hextra-AI-Insight-Daily
-          fi
+          # 创建themes目录并克隆主题
+          mkdir -p themes
+          git clone --depth 1 https://github.com/imfing/hextra.git themes/hextra
           
-          # 下载模块
-          echo "Downloading Hugo modules..."
-          hugo mod download
-          hugo mod tidy
-          
-          echo "Hugo modules setup completed!"
+          echo "Hextra theme cloned successfully!"
+          ls -la themes/
       
-      - name: Setup theme fallback
+      - name: Create basic Hugo config
         run: |
-          echo "Setting up Hextra theme fallback..."
+          echo "Creating Hugo configuration..."
           
-          # 创建themes目录作为备用
-          if [ ! -d "themes" ]; then
-            mkdir -p themes
-            echo "Downloading Hextra theme to themes directory as fallback..."
-            git clone --depth 1 https://github.com/imfing/hextra.git themes/hextra
-            echo "Fallback theme downloaded successfully"
-          else
-            echo "Themes directory already exists"
-          fi
+          # 创建简化的hugo.yaml配置（使用传统主题方式）
+          cat > hugo.yaml << 'EOF'
+          baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
+          title: "AI洞察日报 | 精选AI新闻与深度分析"
+          
+          # 使用传统主题方式，不使用模块
+          theme: hextra
+          
+          # 基础设置
+          timezone: Asia/Shanghai
+          enableRobotsTXT: true
+          enableGitInfo: true
+          enableEmoji: true
+          hasCJKLanguage: true
+          enableInlineShortcodes: true
+          
+          markup:
+            goldmark:
+              renderer:
+                unsafe: true
+            highlight:
+              noClasses: false
+          
+          menu:
+            main:
+              - identifier: search
+                name: 搜索
+                weight: 10
+                params:
+                  type: search
+              - identifier: documentation
+                name: AI日报
+                pageRef: /cn
+                weight: 1
+              - identifier: github   
+                name: GitHub
+                weight: 2
+                url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
+                params:
+                  icon: github
+          
+          params:
+            description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"
+            
+            navbar:
+              displayTitle: true
+              displayLogo: false
+          
+            footer:
+              displayCopyright: false
+              displayPoweredBy: true
+          
+            search:
+              enable: true
+              type: flexsearch
+              flexsearch:
+                index: content
+          
+            page:
+              width: wide
+              sidebar:
+                enable: true
+          
+          # 语言配置
+          defaultContentLanguage: zh
+          languages:
+            zh:
+              languageCode: zh-CN
+              contentDir: content/cn
+              languageName: 简体中文
+              weight: 1
+          EOF
+          
+          echo "Hugo configuration created successfully!"
       
       - name: Check content structure
         run: |
           echo "=== 检查Hugo配置 ==="
           if [ -f "hugo.yaml" ]; then
             echo "✅ hugo.yaml exists"
-            head -20 hugo.yaml
           else
             echo "❌ hugo.yaml missing"
+          fi
+          
+          echo "=== 检查主题 ==="
+          if [ -d "themes/hextra" ]; then
+            echo "✅ Hextra theme exists"
+            ls -la themes/hextra/
+          else
+            echo "❌ Hextra theme missing"
           fi
           
           echo "=== 检查自定义样式 ==="
@@ -133,23 +193,18 @@ jobs:
           
           echo "=== 最新日报文件 ==="
           find content/cn -name "*.md" -type f | sort | tail -5
-          
-          echo "=== Go模块状态 ==="
-          if [ -f "go.mod" ]; then
-            cat go.mod
-          fi
       
-      - name: Build with Hugo
+      - name: Build with Hugo (No Modules)
         env:
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
-          echo "Starting Hugo build..."
+          echo "Starting Hugo build without modules..."
           
           # 显示Hugo环境信息
           hugo env
           
-          # 构建网站
+          # 构建网站（不使用模块相关命令）
           hugo \
             --gc \
             --minify \
