@@ -28,9 +28,9 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup syntax fixed content
+      - name: Setup ultimate fixed content
         run: |
-          echo "🔧 修复语法错误并创建内容..."
+          echo "🔧 终极修复版：彻底解决所有语法问题..."
           
           # 确保所有必要目录存在
           mkdir -p content/cn
@@ -39,7 +39,7 @@ jobs:
           
           # 创建原作者风格的CSS
           cat > assets/css/custom.css << 'EOF'
-          /* AI洞察日报 - 语法修复版 */
+          /* AI洞察日报 - 终极修复版 */
           
           h1:first-of-type {
             display: none;
@@ -228,7 +228,7 @@ jobs:
           }
           EOF
           
-          echo "✅ 语法修复版CSS已创建"
+          echo "✅ 终极修复版CSS已创建"
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
@@ -243,27 +243,35 @@ jobs:
           [查看最新日报 →](/cn/)
           EOF
           
-          # 创建cn目录主页（使用echo避免管道符问题）
-          echo '---' > content/cn/_index.md
-          echo 'linkTitle: AI Daily' >> content/cn/_index.md
-          echo 'title: AI Daily-AI资讯日报' >> content/cn/_index.md
-          echo 'breadcrumbs: false' >> content/cn/_index.md
-          echo 'description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"' >> content/cn/_index.md
-          echo 'cascade:' >> content/cn/_index.md
-          echo '  type: docs' >> content/cn/_index.md
-          echo '---' >> content/cn/_index.md
-          echo '' >> content/cn/_index.md
-          echo '## AI资讯日报' >> content/cn/_index.md
-          echo '' >> content/cn/_index.md
-          echo '>  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)' >> content/cn/_index.md
-          echo '' >> content/cn/_index.md
-          echo '欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。' >> content/cn/_index.md
-          echo '' >> content/cn/_index.md
-          echo '## 🔥 最新动态' >> content/cn/_index.md
-          echo '' >> content/cn/_index.md
-          echo '浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！' >> content/cn/_index.md
+          # 使用临时文件方式创建cn目录主页（彻底避免shell解析问题）
+          cat > /tmp/cn_index.md << 'INDEX_CONTENT'
+          ---
+          linkTitle: AI Daily
+          title: AI Daily-AI资讯日报
+          breadcrumbs: false
+          description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"
+          cascade:
+            type: docs
+          ---
           
-          # 处理日报文件 - 语法修复版
+          ## AI资讯日报
+          
+          >  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
+          
+          欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
+          
+          ## 🔥 最新动态
+          
+          浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
+          INDEX_CONTENT
+          
+          # 复制临时文件到目标位置
+          cp /tmp/cn_index.md content/cn/_index.md
+          rm /tmp/cn_index.md
+          
+          echo "✅ cn目录主页已创建（使用临时文件方式）"
+          
+          # 处理日报文件 - 终极修复版
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -275,10 +283,10 @@ jobs:
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
-              echo "--- 语法修复版处理文件: ${FILENAME} → ${TARGET_FILE} ---"
+              echo "--- 终极修复版处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
               # 使用Python安全地生成内容
-              python3 << PYTHON_EOF
+              python3 << PYTHON_SCRIPT
           import re
           import os
           
@@ -367,7 +375,7 @@ jobs:
           
           """
           
-          # 创建内容主体
+          # 创建内容主体（在Python中安全处理管道符）
           content_body = f"""## AI资讯日报 {date_display}
           
           >  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
@@ -418,30 +426,34 @@ jobs:
           with open("${TARGET_FILE}", "w", encoding="utf-8") as f:
               f.write(front_matter + content_body)
           
-          print(f"✅ 语法修复版文件已创建: ${TARGET_FILE}")
-          PYTHON_EOF
+          print(f"✅ 终极修复版文件已创建: ${TARGET_FILE}")
+          PYTHON_SCRIPT
               
-              # 创建月份索引
+              # 创建月份索引（使用临时文件方式）
               MONTH_INDEX="${TARGET_DIR}/_index.md"
               if [ ! -f "$MONTH_INDEX" ]; then
-                echo '---' > "$MONTH_INDEX"
-                echo "title: \"${YEAR_MONTH} AI日报\"" >> "$MONTH_INDEX"
-                echo "date: ${YEAR_MONTH}-01T00:00:00+08:00" >> "$MONTH_INDEX"
-                echo "type: docs" >> "$MONTH_INDEX"
-                echo "sidebar:" >> "$MONTH_INDEX"
-                echo "  open: true" >> "$MONTH_INDEX"
-                echo "weight: 1" >> "$MONTH_INDEX"
-                echo "---" >> "$MONTH_INDEX"
-                echo "" >> "$MONTH_INDEX"
-                echo "# ${YEAR_MONTH} AI洞察日报" >> "$MONTH_INDEX"
-                echo "" >> "$MONTH_INDEX"
-                echo "本月的AI行业动态和技术趋势汇总，精选重要资讯。" >> "$MONTH_INDEX"
+                cat > /tmp/month_index.md << INDEX_TEMPLATE
+          ---
+          title: "${YEAR_MONTH} AI日报"
+          date: ${YEAR_MONTH}-01T00:00:00+08:00
+          type: docs
+          sidebar:
+            open: true
+          weight: 1
+          ---
+          
+          # ${YEAR_MONTH} AI洞察日报
+          
+          本月的AI行业动态和技术趋势汇总，精选重要资讯。
+          INDEX_TEMPLATE
+                cp /tmp/month_index.md "$MONTH_INDEX"
+                rm /tmp/month_index.md
                 echo "✅ 月份索引已创建: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "--- 语法修复版设置完成 ---"
+          echo "--- 终极修复版设置完成 ---"
 
       - name: Commit and push changes
         run: |
@@ -452,19 +464,19 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🔧 语法修复版：解决管道符和转义问题 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🔧 终极修复版：彻底解决所有shell语法问题 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 语法修复版已推送"
+            echo "✅ 终极修复版已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🔧 语法修复版完成！"
+          echo "🔧 终极修复版完成！"
           echo "✅ 修复内容:"
-          echo "   🛠️ 修复shell脚本中的管道符语法错误"
-          echo "   📝 使用echo命令安全创建文件"
-          echo "   🐍 使用Python处理复杂字符串"
+          echo "   🛠️ 使用临时文件彻底避免shell管道符解析"
+          echo "   📝 Python中处理所有包含管道符的内容"
+          echo "   🔒 完全隔离shell特殊字符问题"
           echo "   🏷️ 保持完整的标签条显示"
           echo "   📂 保持5大固定分类结构"
           echo "   🎨 完全还原原作者样式"
