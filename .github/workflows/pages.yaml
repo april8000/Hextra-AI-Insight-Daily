@@ -37,7 +37,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.147.9
+      HUGO_VERSION: 0.139.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,26 +54,75 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Setup Hugo
+      - name: Setup Hugo (Fixed)
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+          echo "Installing Hugo ${HUGO_VERSION}..."
+          cd ${{ runner.temp }}
+          
+          # 下载Hugo扩展版
+          wget https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
+          
+          # 解压
+          tar -xzf hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
+          
+          # 移动到PATH中
+          sudo mv hugo /usr/local/bin/
+          
+          # 验证安装
           hugo version
+          which hugo
+          
+          echo "Hugo installation completed successfully!"
+      
+      - name: Setup Hugo modules
+        run: |
+          echo "Initializing Hugo modules..."
+          
+          # 确保go.mod存在
+          if [ ! -f "go.mod" ]; then
+            echo "Creating go.mod..."
+            go mod init github.com/april8000/Hextra-AI-Insight-Daily
+          fi
+          
+          # 下载模块
+          echo "Downloading Hugo modules..."
+          hugo mod download
+          hugo mod tidy
+          
+          echo "Hugo modules setup completed!"
       
       - name: Setup theme fallback
         run: |
-          echo "Setting up Hextra theme as fallback..."
+          echo "Setting up Hextra theme fallback..."
+          
+          # 创建themes目录作为备用
           if [ ! -d "themes" ]; then
             mkdir -p themes
-            echo "Downloading Hextra theme to themes directory..."
+            echo "Downloading Hextra theme to themes directory as fallback..."
             git clone --depth 1 https://github.com/imfing/hextra.git themes/hextra
-            echo "Theme downloaded successfully"
+            echo "Fallback theme downloaded successfully"
           else
             echo "Themes directory already exists"
           fi
       
       - name: Check content structure
         run: |
+          echo "=== 检查Hugo配置 ==="
+          if [ -f "hugo.yaml" ]; then
+            echo "✅ hugo.yaml exists"
+            head -20 hugo.yaml
+          else
+            echo "❌ hugo.yaml missing"
+          fi
+          
+          echo "=== 检查自定义样式 ==="
+          if [ -f "assets/css/custom.css" ]; then
+            echo "✅ custom.css exists"
+            ls -la assets/css/
+          else
+            echo "❌ custom.css missing"
+          fi
+          
           echo "=== 检查内容目录结构 ==="
           ls -la content/ || echo "content目录不存在"
           ls -la content/cn/ || echo "content/cn目录不存在"
@@ -84,6 +133,11 @@ jobs:
           
           echo "=== 最新日报文件 ==="
           find content/cn -name "*.md" -type f | sort | tail -5
+          
+          echo "=== Go模块状态 ==="
+          if [ -f "go.mod" ]; then
+            cat go.mod
+          fi
       
       - name: Build with Hugo
         env:
@@ -91,18 +145,28 @@ jobs:
           HUGO_ENV: production
         run: |
           echo "Starting Hugo build..."
+          
+          # 显示Hugo环境信息
+          hugo env
+          
+          # 构建网站
           hugo \
-            --gc --minify \
+            --gc \
+            --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
           
           echo "Checking build results..."
           if [ -d "public" ] && [ "$(ls -A public)" ]; then
-            echo "Build successful!"
+            echo "✅ Build successful!"
             ls -la public/
+            echo "=== 检查生成的页面 ==="
+            find public -name "*.html" | head -10
+            echo "=== 检查生成的CSS ==="
+            find public -name "*.css" | head -5
             echo "=== 检查生成的日报页面 ==="
             find public -path "*/cn/*" -name "*.html" | head -5
           else
-            echo "Build failed - public directory is empty or missing"
+            echo "❌ Build failed - public directory is empty or missing"
             exit 1
           fi
       
