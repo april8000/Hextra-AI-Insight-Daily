@@ -390,36 +390,43 @@ jobs:
           
           """
           
-          # 添加各个分类
+          # 添加各个分类 - 每个分类独立编号
           if product_news:
               structured_content += "\\n### 产品与功能更新\\n"
               for i, news in enumerate(product_news[:5], 1):  # 最多5条
-                  structured_content += f"{i}.  {news}\\n"
+                  # 清理编号，确保每个分类从1开始
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           if research_news:
               structured_content += "\\n### 前沿研究\\n"
               for i, news in enumerate(research_news[:3], 1):  # 最多3条
-                  structured_content += f"{i}.  {news}\\n"
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           if industry_news:
               structured_content += "\\n### 行业展望与社会影响\\n"
               for i, news in enumerate(industry_news[:3], 1):  # 最多3条
-                  structured_content += f"{i}.  {news}\\n"
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           if opensource_news:
               structured_content += "\\n### 开源TOP项目\\n"
               for i, news in enumerate(opensource_news[:4], 1):  # 最多4条
-                  structured_content += f"{i}.  {news}\\n"
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           if social_news:
               structured_content += "\\n### 社媒分享\\n"
               for i, news in enumerate(social_news[:5], 1):  # 最多5条
-                  structured_content += f"{i}.  {news}\\n"
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           if other_news:
               structured_content += "\\n### 今日AI资讯\\n"
               for i, news in enumerate(other_news[:6], 1):  # 最多6条
-                  structured_content += f"{i}.  {news}\\n"
+                  clean_news = re.sub(r'^\\d+\\.\\s*', '', news.strip())
+                  structured_content += f"{i}.  {clean_news}\\n"
           
           # 创建Front Matter和完整内容
           final_content = f'''---
