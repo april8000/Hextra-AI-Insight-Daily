@@ -1,6 +1,5 @@
-/* AI洞察日报 - 真实原作者风格 */
+/* AI洞察日报 - 完全还原原作者风格 */
 
-/* 基础样式 */
 h1:first-of-type {
   display: none;
 }
@@ -13,14 +12,13 @@ h1:first-of-type {
   word-break: break-word;
 }
 
-/* 核心色调定义 - 橙色主题 #ff9900 */
 :root {
   --primary-color: #ff9900;
   --primary-light: #ffaa33;
   --primary-dark: #e68800;
 }
 
-/* 浅色模式分类标签样式 */
+/* 分类标签样式 */
 .content blockquote {
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.03));
   border: none;
@@ -73,14 +71,6 @@ h1:first-of-type {
   padding-bottom: 0.5rem;
   margin: 2rem 0 1rem 0 !important;
   font-weight: 700 !important;
-}
-
-/* 今日摘要特殊样式 */
-.content h3:contains("今日摘要"),
-.content h3:contains("摘要") {
-  background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
-  padding: 0.8rem 1.2rem !important;
-  border-radius: 8px;
 }
 
 /* 链接样式 */
