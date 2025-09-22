@@ -51,15 +51,13 @@ jobs:
           rm -f .gitmodules || true
           mkdir -p content
           if [ ! -f "content/_index.md" ]; then
-            cat > content/_index.md << 'EOF'
----
-title: "AI洞察日报"
----
-
-# AI洞察日报
-
-欢迎访问AI洞察日报！
-EOF
+            echo "---" > content/_index.md
+            echo "title: \"AI洞察日报\"" >> content/_index.md
+            echo "---" >> content/_index.md
+            echo "" >> content/_index.md
+            echo "# AI洞察日报" >> content/_index.md
+            echo "" >> content/_index.md
+            echo "欢迎访问AI洞察日报！这里汇集了最新的AI资讯和技术动态。" >> content/_index.md
           fi
       
       - name: Hugo build
@@ -68,15 +66,19 @@ EOF
           HUGO_ENV: production
         run: |
           if [ -f "go.mod" ]; then
+            echo "初始化Hugo模块..."
             hugo mod download
             hugo mod tidy
           fi
+          echo "开始构建Hugo站点..."
           hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
           if [ ! -d "public" ] || [ -z "$(ls -A public 2>/dev/null)" ]; then
             echo "构建失败：public目录为空"
+            ls -la
             exit 1
           fi
           echo "构建成功！"
+          ls -la public/
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
