@@ -28,9 +28,9 @@ jobs:
           path: 'source-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup fixed tags and summary content
+      - name: Setup syntax fixed content
         run: |
-          echo "🔧 修复标签条和摘要显示问题..."
+          echo "🔧 修复语法错误并创建内容..."
           
           # 确保所有必要目录存在
           mkdir -p content/cn
@@ -39,7 +39,7 @@ jobs:
           
           # 创建原作者风格的CSS
           cat > assets/css/custom.css << 'EOF'
-          /* AI洞察日报 - 修复版 */
+          /* AI洞察日报 - 语法修复版 */
           
           h1:first-of-type {
             display: none;
@@ -228,7 +228,7 @@ jobs:
           }
           EOF
           
-          echo "✅ 修复版CSS已创建"
+          echo "✅ 语法修复版CSS已创建"
           
           # 创建根目录首页
           cat > content/_index.md << 'EOF'
@@ -243,29 +243,27 @@ jobs:
           [查看最新日报 →](/cn/)
           EOF
           
-          # 创建cn目录主页
-          cat > content/cn/_index.md << 'EOF'
-          ---
-          linkTitle: AI Daily
-          title: AI Daily-AI资讯日报
-          breadcrumbs: false
-          description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"
-          cascade:
-            type: docs
-          ---
+          # 创建cn目录主页（使用echo避免管道符问题）
+          echo '---' > content/cn/_index.md
+          echo 'linkTitle: AI Daily' >> content/cn/_index.md
+          echo 'title: AI Daily-AI资讯日报' >> content/cn/_index.md
+          echo 'breadcrumbs: false' >> content/cn/_index.md
+          echo 'description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"' >> content/cn/_index.md
+          echo 'cascade:' >> content/cn/_index.md
+          echo '  type: docs' >> content/cn/_index.md
+          echo '---' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '## AI资讯日报' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '>  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '## 🔥 最新动态' >> content/cn/_index.md
+          echo '' >> content/cn/_index.md
+          echo '浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！' >> content/cn/_index.md
           
-          ## AI资讯日报
-          
-          >  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
-          
-          欢迎来到AI洞察日报！这里为您提供每日精选的AI资讯和深度分析。
-          
-          ## 🔥 最新动态
-          
-          浏览左侧的日期导航查看最新的AI日报内容，每日更新，精彩不断！
-          EOF
-          
-          # 处理日报文件 - 修复版
+          # 处理日报文件 - 语法修复版
           find source-repo/daily -maxdepth 1 -type f -name "*.md" 2>/dev/null | sort -r | head -20 | while read -r SOURCE_FILE_PATH; do
             if [ -f "$SOURCE_FILE_PATH" ]; then
               FILENAME=$(basename "$SOURCE_FILE_PATH")
@@ -277,32 +275,19 @@ jobs:
               mkdir -p "$TARGET_DIR"
               TARGET_FILE="${TARGET_DIR}/${FILENAME}"
               
-              echo "--- 修复版处理文件: ${FILENAME} → ${TARGET_FILE} ---"
+              echo "--- 语法修复版处理文件: ${FILENAME} → ${TARGET_FILE} ---"
               
-              # 读取原始内容
-              ORIGINAL_CONTENT=$(cat "$SOURCE_FILE_PATH")
-              
-              # 生成日期显示格式
-              DATE_DISPLAY=$(echo "$DATE_PART" | sed 's/-/\//g')
-              
-              # 使用Python修复标签和摘要
+              # 使用Python安全地生成内容
               python3 << PYTHON_EOF
           import re
+          import os
           
           # 读取原始内容
           with open("${SOURCE_FILE_PATH}", "r", encoding="utf-8") as f:
               content = f.read()
           
           date_part = "${DATE_PART}"
-          date_display = "${DATE_DISPLAY}"
-          
-          # 初始化各个分类的内容
-          summary_content = ""
-          product_news = []
-          research_news = []
-          industry_news = []
-          opensource_news = []
-          social_news = []
+          date_display = date_part.replace('-', '/')
           
           # 智能提取摘要内容
           lines = content.split('\n')
@@ -311,8 +296,7 @@ jobs:
           # 寻找有意义的内容作为摘要
           for line in lines:
               line = line.strip()
-              if line and len(line) > 15:  # 过滤掉过短的行
-                  # 跳过明显的标题、列表项等
+              if line and len(line) > 15:
                   if (not line.startswith('#') and 
                       not line.startswith('```') and 
                       not line.startswith('---') and
@@ -321,7 +305,7 @@ jobs:
                       not line.startswith('* ') and
                       not line.startswith('>')):
                       summary_lines.append(line)
-                      if len(summary_lines) >= 3:  # 最多取3行
+                      if len(summary_lines) >= 3:
                           break
           
           if summary_lines:
@@ -329,13 +313,17 @@ jobs:
           else:
               summary_content = f"{date_display}的AI行业动态汇总，包含最新产品发布、技术突破、行业投资等重要资讯。"
           
-          # 按行分析内容并分类
-          current_item = ""
+          # 分类新闻内容
+          product_news = []
+          research_news = []
+          industry_news = []
+          opensource_news = []
+          social_news = []
           
+          current_item = ""
           for line in lines:
               if line.strip() and (re.match(r'^\d+\.', line) or line.startswith('- ') or line.startswith('* ')):
-                  # 保存之前的条目
-                  if current_item and len(current_item.strip()) > 20:  # 确保条目有足够内容
+                  if current_item and len(current_item.strip()) > 20:
                       if re.search(r'产品|功能|更新|发布|工具|平台|API|服务|模型|应用', current_item, re.IGNORECASE):
                           product_news.append(current_item.strip())
                       elif re.search(r'研究|论文|学术|科学|实验|算法|框架', current_item, re.IGNORECASE):
@@ -347,7 +335,6 @@ jobs:
                       elif re.search(r'社交|媒体|分享|讨论|用户|社区|推特|微博', current_item, re.IGNORECASE):
                           social_news.append(current_item.strip())
                       else:
-                          # 默认分配到产品更新
                           product_news.append(current_item.strip())
                   current_item = line
               elif line.strip() and current_item:
@@ -368,8 +355,20 @@ jobs:
               else:
                   product_news.append(current_item.strip())
           
-          # 构建最终内容 - 修复标签条和摘要
-          structured_content = f"""## AI资讯日报 {date_display}
+          # 创建Front Matter
+          front_matter = f"""---
+          linkTitle: {date_part[5:]}-日报
+          title: {date_part[5:]}-日报-AI资讯日报
+          weight: 1
+          breadcrumbs: false
+          comments: true
+          description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"
+          ---
+          
+          """
+          
+          # 创建内容主体
+          content_body = f"""## AI资讯日报 {date_display}
           
           >  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
           
@@ -386,78 +385,63 @@ jobs:
           
           # 添加分类内容
           if product_news:
-              structured_content += "\n### 产品与功能更新\n"
+              content_body += "\n### 产品与功能更新\n"
               for i, news in enumerate(product_news[:5], 1):
                   clean_news = re.sub(r'^\d+\.\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\n"
+                  content_body += f"{i}.  {clean_news}\n"
           
           if research_news:
-              structured_content += "\n### 前沿研究\n"
+              content_body += "\n### 前沿研究\n"
               for i, news in enumerate(research_news[:3], 1):
                   clean_news = re.sub(r'^\d+\.\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\n"
+                  content_body += f"{i}.  {clean_news}\n"
           
           if industry_news:
-              structured_content += "\n### 行业展望与社会影响\n"
+              content_body += "\n### 行业展望与社会影响\n"
               for i, news in enumerate(industry_news[:3], 1):
                   clean_news = re.sub(r'^\d+\.\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\n"
+                  content_body += f"{i}.  {clean_news}\n"
           
           if opensource_news:
-              structured_content += "\n### 开源TOP项目\n"
+              content_body += "\n### 开源TOP项目\n"
               for i, news in enumerate(opensource_news[:4], 1):
                   clean_news = re.sub(r'^\d+\.\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\n"
+                  content_body += f"{i}.  {clean_news}\n"
           
           if social_news:
-              structured_content += "\n### 社媒分享\n"
+              content_body += "\n### 社媒分享\n"
               for i, news in enumerate(social_news[:5], 1):
                   clean_news = re.sub(r'^\d+\.\s*', '', news)
-                  structured_content += f"{i}.  {clean_news}\n"
-          
-          # 创建Front Matter和完整内容
-          final_content = f'''---
-          linkTitle: {date_part[5:]}-日报
-          title: {date_part[5:]}-日报-AI资讯日报
-          weight: 1
-          breadcrumbs: false
-          comments: true
-          description: "个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态"
-          ---
-          
-          {structured_content}
-          '''
+                  content_body += f"{i}.  {clean_news}\n"
           
           # 写入文件
           with open("${TARGET_FILE}", "w", encoding="utf-8") as f:
-              f.write(final_content)
+              f.write(front_matter + content_body)
           
-          print(f"✅ 修复版文件已创建: ${TARGET_FILE}")
+          print(f"✅ 语法修复版文件已创建: ${TARGET_FILE}")
           PYTHON_EOF
               
               # 创建月份索引
               MONTH_INDEX="${TARGET_DIR}/_index.md"
               if [ ! -f "$MONTH_INDEX" ]; then
-                cat > "$MONTH_INDEX" << INDEX_EOF
-          ---
-          title: "${YEAR_MONTH} AI日报"
-          date: ${YEAR_MONTH}-01T00:00:00+08:00
-          type: docs
-          sidebar:
-            open: true
-          weight: 1
-          ---
-          
-          # ${YEAR_MONTH} AI洞察日报
-          
-          本月的AI行业动态和技术趋势汇总，精选重要资讯。
-          INDEX_EOF
+                echo '---' > "$MONTH_INDEX"
+                echo "title: \"${YEAR_MONTH} AI日报\"" >> "$MONTH_INDEX"
+                echo "date: ${YEAR_MONTH}-01T00:00:00+08:00" >> "$MONTH_INDEX"
+                echo "type: docs" >> "$MONTH_INDEX"
+                echo "sidebar:" >> "$MONTH_INDEX"
+                echo "  open: true" >> "$MONTH_INDEX"
+                echo "weight: 1" >> "$MONTH_INDEX"
+                echo "---" >> "$MONTH_INDEX"
+                echo "" >> "$MONTH_INDEX"
+                echo "# ${YEAR_MONTH} AI洞察日报" >> "$MONTH_INDEX"
+                echo "" >> "$MONTH_INDEX"
+                echo "本月的AI行业动态和技术趋势汇总，精选重要资讯。" >> "$MONTH_INDEX"
                 echo "✅ 月份索引已创建: ${MONTH_INDEX}"
               fi
             fi
           done
           
-          echo "--- 修复版设置完成 ---"
+          echo "--- 语法修复版设置完成 ---"
 
       - name: Commit and push changes
         run: |
@@ -468,20 +452,20 @@ jobs:
           if git diff --staged --quiet; then
             echo "ℹ️ 没有需要提交的更改"
           else
-            git commit -m "🔧 修复标签条和摘要显示：完美还原原作者格式 - $(date +%Y-%m-%d-%H-%M)"
+            git commit -m "🔧 语法修复版：解决管道符和转义问题 - $(date +%Y-%m-%d-%H-%M)"
             git push
-            echo "✅ 修复版已推送"
+            echo "✅ 语法修复版已推送"
           fi
 
       - name: Notify completion
         if: always()
         run: |
-          echo "🔧 标签条和摘要修复完成！"
+          echo "🔧 语法修复版完成！"
           echo "✅ 修复内容:"
-          echo "   🏷️ 修复分类标签条正确显示"
-          echo "   📝 智能提取和显示摘要内容"
+          echo "   🛠️ 修复shell脚本中的管道符语法错误"
+          echo "   📝 使用echo命令安全创建文件"
+          echo "   🐍 使用Python处理复杂字符串"
+          echo "   🏷️ 保持完整的标签条显示"
           echo "   📂 保持5大固定分类结构"
-          echo "   🔢 正确的编号格式"
           echo "   🎨 完全还原原作者样式"
-          echo "   📋 准确的右侧导航"
           echo "📊 统计: $(find content/cn -name "*.md" -type f | wc -l) 个内容文件"
