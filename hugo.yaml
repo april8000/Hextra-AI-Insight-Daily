@@ -32,8 +32,13 @@ params:
     displayPoweredBy: true
   search:
     enable: true
+  
+  # 确保侧边栏显示
+  page:
+    sidebar:
+      enable: true
 
-# 语言配置
+# 语言和内容配置
 defaultContentLanguage: zh
 languages:
   zh:
