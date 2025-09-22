@@ -1,61 +1,28 @@
-/* ==========================================================================
-   AI洞察日报 - 增强视觉样式
-   解决内容显示和美观问题
-   ========================================================================== */
+/* AI洞察日报 - 稳定版样式 */
 
-/* 1. 确保内容完整显示，不被截断 */
+/* 1. 基础样式 */
+h1:first-of-type {
+  display: none;
+}
+
 .content {
   max-width: none !important;
   overflow: visible !important;
 }
 
-.content article {
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-/* 2. 隐藏页面第一个h1标题，因为我们在Front Matter中已经定义了标题 */
-h1:first-of-type {
-  display: none;
-}
-
-/* 3. 统一代码字体 */
-code, kbd, samp, pre {
-  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,liberation mono,courier new,monospace;
-}
-
-/* 4. 增强的分类标签样式 */
+/* 2. 分类标签美化 */
 .content blockquote {
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.05));
   border-left: 4px solid #ff9900;
   border-radius: 8px;
   padding: 1rem 1.5rem;
   margin: 1.5rem 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.content blockquote::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #ff9900, #ffaa33, #ff9900);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
 }
 
 .content blockquote p {
   margin: 0 !important;
   color: #ff9900 !important;
   font-weight: 500;
-  font-size: 0.95rem;
 }
 
 .content blockquote code {
@@ -64,25 +31,9 @@ code, kbd, samp, pre {
   padding: 2px 6px !important;
   border-radius: 4px !important;
   font-weight: 600 !important;
-  border: 1px solid rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 5. 新闻内容区域美化 */
-.content h3 {
-  color: #ff9900 !important;
-  border-bottom: 2px solid rgba(255, 153, 0, 0.3);
-  padding-bottom: 0.5rem;
-  margin-top: 2rem !important;
-  margin-bottom: 1rem !important;
-  position: relative;
-}
-
-.content h3::before {
-  content: '🔥';
-  margin-right: 0.5rem;
-}
-
-/* 6. 新闻条目美化 */
+/* 3. 新闻条目美化 */
 .content ol li,
 .content ul li {
   margin-bottom: 1.5rem !important;
@@ -100,146 +51,44 @@ code, kbd, samp, pre {
   box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 7. 图片样式优化 */
-.content :where(img):not(:where([class~=not-prose],[class~=not-prose] *)) {
-  margin: 1rem auto !important;
-  border-radius: 12px !important;
-  max-width: 100% !important;
-  height: auto !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+/* 4. 标题美化 */
+.content h3 {
+  color: #ff9900 !important;
+  border-bottom: 2px solid rgba(255, 153, 0, 0.3);
+  padding-bottom: 0.5rem;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
 }
 
-.content img:hover {
-  transform: scale(1.02) !important;
-  box-shadow: 0 12px 48px rgba(255, 153, 0, 0.2) !important;
-}
-
-/* 8. 视频样式优化 */
-video {
-  margin: 1.5rem auto !important;
-  border-radius: 12px !important;
-  max-width: 100% !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* 9. 链接样式增强 */
+/* 5. 链接和文本美化 */
 .content a {
   color: #ff9900 !important;
   text-decoration: none !important;
-  border-bottom: 2px solid transparent !important;
-  transition: all 0.3s ease !important;
   font-weight: 500 !important;
 }
 
 .content a:hover {
   color: #ffaa33 !important;
-  border-bottom-color: #ff9900 !important;
-  background: rgba(255, 153, 0, 0.1) !important;
-  padding: 2px 4px !important;
-  border-radius: 4px !important;
+  text-decoration: underline !important;
 }
 
-/* 10. 代码块美化 */
-.content code {
-  background: rgba(255, 153, 0, 0.1) !important;
-  color: #ff6600 !important;
-  padding: 2px 6px !important;
-  border-radius: 6px !important;
-  font-size: 0.9em !important;
-  font-weight: 500 !important;
-}
-
-.content pre {
-  background: #1a1a1a !important;
-  border: 1px solid #ff9900 !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important;
-  overflow-x: auto !important;
-  margin: 1.5rem 0 !important;
-}
-
-.content pre code {
-  background: transparent !important;
-  color: #f0f0f0 !important;
-  padding: 0 !important;
-}
-
-/* 11. 强调文本美化 */
 .content strong {
   color: #ff9900 !important;
-  font-weight: 700 !important;
   background: rgba(255, 153, 0, 0.1) !important;
   padding: 1px 3px !important;
   border-radius: 3px !important;
 }
 
-/* 12. 表格美化 */
-.content table {
-  border-collapse: collapse !important;
-  width: 100% !important;
-  margin: 1.5rem 0 !important;
-  background: rgba(255, 153, 0, 0.02) !important;
+/* 6. 图片优化 */
+.content img {
+  margin: 1rem auto !important;
   border-radius: 8px !important;
-  overflow: hidden !important;
+  max-width: 100% !important;
+  height: auto !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-.content table th {
-  background: #ff9900 !important;
-  color: white !important;
-  padding: 1rem !important;
-  text-align: left !important;
-  font-weight: 600 !important;
-}
-
-.content table td {
-  padding: 0.75rem 1rem !important;
-  border-bottom: 1px solid rgba(255, 153, 0, 0.2) !important;
-}
-
-.content table tr:hover {
-  background: rgba(255, 153, 0, 0.05) !important;
-}
-
-/* 13. 分隔线美化 */
-.content hr {
-  border: none !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, transparent, #ff9900, transparent) !important;
-  margin: 2rem 0 !important;
-}
-
-/* 14. 侧边栏美化 */
-.sidebar-container {
-  background: rgba(255, 153, 0, 0.02) !important;
-  border-radius: 12px !important;
-  padding: 1rem !important;
-}
-
-.sidebar-container a {
-  border-radius: 6px !important;
-  transition: all 0.3s ease !important;
-  padding: 0.5rem 0.75rem !important;
-  margin: 2px 0 !important;
-  display: block !important;
-}
-
-.sidebar-container a:hover {
-  background: rgba(255, 153, 0, 0.1) !important;
-  transform: translateX(5px) !important;
-}
-
-/* 15. 暗色主题优化 */
-html.dark .content {
-  color: #f0f0f0 !important;
-}
-
-html.dark .content h2,
-html.dark .content h3,
-html.dark .content h4 {
-  color: #ff9900 !important;
-}
-
+/* 7. 暗色主题 */
 html.dark .content ol li,
 html.dark .content ul li {
   background: rgba(255, 153, 0, 0.08) !important;
@@ -249,56 +98,4 @@ html.dark .content ul li {
 html.dark .content ol li:hover,
 html.dark .content ul li:hover {
   background: rgba(255, 153, 0, 0.15) !important;
-}
-
-/* 16. 响应式优化 */
-@media (max-width: 768px) {
-  .content {
-    padding: 1rem !important;
-  }
-  
-  .content ol li,
-  .content ul li {
-    padding: 0.75rem !important;
-    margin-bottom: 1rem !important;
-  }
-  
-  .content blockquote {
-    padding: 0.75rem 1rem !important;
-  }
-}
-
-/* 17. 加载动画 */
-.content {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 18. 滚动条美化 */
-.content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.content::-webkit-scrollbar-track {
-  background: rgba(255, 153, 0, 0.1);
-  border-radius: 4px;
-}
-
-.content::-webkit-scrollbar-thumb {
-  background: #ff9900;
-  border-radius: 4px;
-}
-
-.content::-webkit-scrollbar-thumb:hover {
-  background: #ffaa33;
 }
