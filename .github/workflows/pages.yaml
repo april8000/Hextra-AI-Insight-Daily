@@ -37,7 +37,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.135.0
+      HUGO_VERSION: 0.147.9
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Setup Hugo (Stable)
+      - name: Setup Hugo (Compatible Version)
         run: |
           echo "Installing Hugo ${HUGO_VERSION}..."
           cd ${{ runner.temp }}
@@ -79,11 +79,11 @@ jobs:
           echo "Hextra theme cloned successfully!"
           ls -la themes/
       
-      - name: Create basic Hugo config
+      - name: Create Hugo config (No Modules)
         run: |
-          echo "Creating Hugo configuration..."
+          echo "Creating Hugo configuration without modules..."
           
-          # 创建简化的hugo.yaml配置（使用传统主题方式）
+          # 创建hugo.yaml配置（不使用模块）
           cat > hugo.yaml << 'EOF'
           baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
           title: "AI洞察日报 | 精选AI新闻与深度分析"
@@ -163,6 +163,7 @@ jobs:
           echo "=== 检查Hugo配置 ==="
           if [ -f "hugo.yaml" ]; then
             echo "✅ hugo.yaml exists"
+            head -10 hugo.yaml
           else
             echo "❌ hugo.yaml missing"
           fi
@@ -170,7 +171,7 @@ jobs:
           echo "=== 检查主题 ==="
           if [ -d "themes/hextra" ]; then
             echo "✅ Hextra theme exists"
-            ls -la themes/hextra/
+            ls -la themes/hextra/ | head -5
           else
             echo "❌ Hextra theme missing"
           fi
@@ -183,16 +184,12 @@ jobs:
             echo "❌ custom.css missing"
           fi
           
-          echo "=== 检查内容目录结构 ==="
+          echo "=== 检查内容目录 ==="
           ls -la content/ || echo "content目录不存在"
           ls -la content/cn/ || echo "content/cn目录不存在"
-          ls -la content/cn/*/ || echo "没有月份目录"
           
           echo "=== 统计内容文件 ==="
           find content -name "*.md" -type f | wc -l | xargs echo "找到markdown文件数量:"
-          
-          echo "=== 最新日报文件 ==="
-          find content/cn -name "*.md" -type f | sort | tail -5
       
       - name: Build with Hugo (No Modules)
         env:
@@ -204,7 +201,7 @@ jobs:
           # 显示Hugo环境信息
           hugo env
           
-          # 构建网站（不使用模块相关命令）
+          # 构建网站（不使用任何模块命令）
           hugo \
             --gc \
             --minify \
@@ -215,13 +212,11 @@ jobs:
             echo "✅ Build successful!"
             ls -la public/
             echo "=== 检查生成的页面 ==="
-            find public -name "*.html" | head -10
+            find public -name "*.html" | head -5
             echo "=== 检查生成的CSS ==="
-            find public -name "*.css" | head -5
-            echo "=== 检查生成的日报页面 ==="
-            find public -path "*/cn/*" -name "*.html" | head -5
+            find public -name "*.css" | head -3
           else
-            echo "❌ Build failed - public directory is empty or missing"
+            echo "❌ Build failed - public directory is empty"
             exit 1
           fi
       
