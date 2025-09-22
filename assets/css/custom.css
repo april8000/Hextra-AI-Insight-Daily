@@ -1,6 +1,6 @@
-/* AI洞察日报 - 增强版视觉样式 */
+/* AI洞察日报 - 原作者风格 */
 
-/* 1. 基础样式优化 */
+/* 1. 基础样式 - 参考原作者项目 */
 h1:first-of-type {
   display: none;
 }
@@ -8,226 +8,211 @@ h1:first-of-type {
 .content {
   max-width: none !important;
   overflow: visible !important;
-  line-height: 1.8 !important;
+  line-height: 1.7 !important;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
-/* 2. 分类标签超级美化 */
+/* 2. 核心色调定义 - 橙色主题 #ff9900 */
+:root {
+  --primary-hue: 36deg;
+  --primary-saturation: 100%;
+  --primary-lightness: 50%;
+  --primary-color: #ff9900;
+  --primary-light: #ffaa33;
+  --primary-dark: #e68800;
+}
+
+/* 3. 浅色模式分类标签样式 */
 .content blockquote {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05));
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 153, 0, 0.03));
   border: none;
-  border-left: 5px solid #ff9900;
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  margin: 2rem 0;
-  position: relative;
-  box-shadow: 0 8px 32px rgba(255, 153, 0, 0.15);
-  backdrop-filter: blur(10px);
-}
-
-.content blockquote::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #ff9900, #ffaa33, #ff9900);
-  border-radius: 12px 12px 0 0;
-  animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.1);
 }
 
 .content blockquote p {
   margin: 0 !important;
-  color: #ff9900 !important;
+  color: var(--primary-color) !important;
   font-weight: 600 !important;
-  font-size: 1rem !important;
-  text-shadow: 0 1px 2px rgba(255, 153, 0, 0.3);
+  font-size: 0.95rem !important;
 }
 
 .content blockquote code {
-  background-color: rgba(255, 153, 0, 0.25) !important;
-  color: #ff6600 !important;
-  padding: 3px 8px !important;
-  border-radius: 6px !important;
-  font-weight: 700 !important;
-  border: 1px solid rgba(255, 153, 0, 0.4) !important;
-  box-shadow: 0 2px 4px rgba(255, 153, 0, 0.2);
+  background-color: rgba(255, 153, 0, 0.2) !important;
+  color: var(--primary-dark) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 3. 新闻条目超级美化 */
+/* 4. 新闻条目浅色模式样式 */
 .content ol li,
 .content ul li {
-  margin-bottom: 2rem !important;
-  padding: 1.5rem !important;
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.05), rgba(255, 153, 0, 0.02)) !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 153, 0, 0.2) !important;
-  border-left: 4px solid #ff9900 !important;
-  transition: all 0.4s ease !important;
-  position: relative !important;
-  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.1) !important;
+  margin-bottom: 1.5rem !important;
+  padding: 1.2rem !important;
+  background: rgba(255, 153, 0, 0.02) !important;
+  border-radius: 8px !important;
+  border-left: 3px solid var(--primary-color) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .content ol li:hover,
 .content ul li:hover {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.12), rgba(255, 153, 0, 0.05)) !important;
-  transform: translateX(8px) translateY(-2px) !important;
-  box-shadow: 0 8px 32px rgba(255, 153, 0, 0.25) !important;
-  border-left-width: 6px !important;
+  background: rgba(255, 153, 0, 0.05) !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15) !important;
 }
 
-.content ol li::before,
-.content ul li::before {
-  content: '📰';
-  position: absolute;
-  top: -8px;
-  left: 1rem;
-  background: #ff9900;
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
-}
-
-/* 4. 标题超级美化 */
+/* 5. 标题浅色模式样式 */
 .content h3 {
-  color: #ff9900 !important;
-  background: linear-gradient(90deg, rgba(255, 153, 0, 0.1), transparent);
-  border: none;
-  border-left: 6px solid #ff9900;
-  padding: 1rem 1.5rem !important;
-  border-radius: 8px;
-  margin: 2.5rem 0 1.5rem 0 !important;
-  position: relative;
-  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.15);
-  font-size: 1.3rem !important;
+  color: var(--primary-color) !important;
+  border-bottom: 2px solid rgba(255, 153, 0, 0.2);
+  padding-bottom: 0.5rem;
+  margin: 2rem 0 1rem 0 !important;
   font-weight: 700 !important;
 }
 
-.content h3::before {
-  content: '🔥';
-  margin-right: 0.8rem;
-  font-size: 1.1rem;
-}
-
-.content h3::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, #ff9900, transparent);
-}
-
-/* 5. 链接超级美化 */
+/* 6. 链接浅色模式样式 */
 .content a {
-  color: #ff9900 !important;
+  color: var(--primary-color) !important;
   text-decoration: none !important;
-  font-weight: 600 !important;
-  border-bottom: 2px solid transparent !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-  padding: 2px 4px !important;
-  border-radius: 4px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
 .content a:hover {
-  color: #ffffff !important;
-  background: linear-gradient(45deg, #ff9900, #ffaa33) !important;
-  border-bottom-color: transparent !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4) !important;
+  color: var(--primary-dark) !important;
+  text-decoration: underline !important;
 }
 
-.content a::after {
-  content: ' 🔗';
-  font-size: 0.8em;
-  opacity: 0.7;
-}
-
-/* 6. 强调文本美化 */
+/* 7. 强调文本浅色模式 */
 .content strong {
-  color: #ff9900 !important;
+  color: var(--primary-color) !important;
   font-weight: 700 !important;
-  background: linear-gradient(45deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 3px rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 7. 图片超级美化 */
+/* 8. 图片样式 */
 .content img {
-  margin: 2rem auto !important;
-  border-radius: 16px !important;
+  margin: 1rem auto !important;
+  border-radius: 8px !important;
   max-width: 100% !important;
   height: auto !important;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15) !important;
-  transition: all 0.4s ease !important;
-  border: 3px solid rgba(255, 153, 0, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
-.content img:hover {
-  transform: scale(1.03) !important;
-  box-shadow: 0 20px 60px rgba(255, 153, 0, 0.3) !important;
-  border-color: #ff9900 !important;
-}
-
-/* 8. 代码美化 */
+/* 9. 代码块浅色模式 */
 .content code {
-  background: linear-gradient(45deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.08)) !important;
-  color: #ff6600 !important;
-  padding: 3px 8px !important;
-  border-radius: 6px !important;
+  background-color: rgba(255, 153, 0, 0.1) !important;
+  color: var(--primary-dark) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
   font-size: 0.9em !important;
-  font-weight: 600 !important;
-  border: 1px solid rgba(255, 153, 0, 0.3) !important;
-  box-shadow: 0 1px 3px rgba(255, 153, 0, 0.2) !important;
 }
 
-/* 9. 分隔线美化 */
-.content hr {
-  border: none !important;
-  height: 3px !important;
-  background: linear-gradient(90deg, transparent, #ff9900, transparent) !important;
-  margin: 3rem 0 !important;
-  border-radius: 2px !important;
+/* 10. 深色模式样式 - 完全不同的配色 */
+html.dark {
+  --primary-hue: 36deg;
+  --primary-saturation: 100%;
+  --primary-lightness: 50%;
 }
 
-/* 10. 暗色主题超级优化 */
-html.dark .content {
-  color: #f0f0f0 !important;
+/* 深色模式基础布局 */
+.hextra-footer:is(html[class~=dark] *),
+.nav-container:is(html[class~=dark] *),
+body:is(html[class~=dark] *) {
+  background-color: #1c1c1c;
 }
 
-html.dark .content h2,
-html.dark .content h3,
-html.dark .content h4 {
+.nav-container-blur:is(html[class~=dark] *) {
+  background-color: rgba(28, 28, 28, 0.8) !important;
+}
+
+/* 深色模式导航栏 */
+.nav-container a:is(html[class~=dark] *),
+.nav-container svg:is(html[class~=dark] *) {
+  color: #ffffff;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-container a:hover:is(html[class~=dark] *),
+.nav-container a:hover svg:is(html[class~=dark] *),
+.nav-container button:hover svg:is(html[class~=dark] *) {
   color: #ff9900 !important;
 }
 
+/* 深色模式分类标签 */
+html.dark .content blockquote {
+  background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 153, 0, 0.05)) !important;
+  border-left-color: #ff9900 !important;
+  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.2) !important;
+}
+
+html.dark .content blockquote p {
+  color: #ff9900 !important;
+}
+
+html.dark .content blockquote code {
+  background-color: rgba(255, 153, 0, 0.25) !important;
+  color: #ffaa33 !important;
+  border-color: rgba(255, 153, 0, 0.4) !important;
+}
+
+/* 深色模式新闻条目 */
 html.dark .content ol li,
 html.dark .content ul li {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.12), rgba(255, 153, 0, 0.05)) !important;
+  background: rgba(255, 153, 0, 0.08) !important;
+  border-left-color: #ff9900 !important;
   color: #f0f0f0 !important;
-  border-color: rgba(255, 153, 0, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.1) !important;
 }
 
 html.dark .content ol li:hover,
 html.dark .content ul li:hover {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.2), rgba(255, 153, 0, 0.08)) !important;
+  background: rgba(255, 153, 0, 0.15) !important;
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.25) !important;
 }
 
-/* 11. 响应式超级优化 */
+/* 深色模式标题 */
+html.dark .content h2,
+html.dark .content h3,
+html.dark .content h4 {
+  color: #ff9900 !important;
+  border-bottom-color: rgba(255, 153, 0, 0.3) !important;
+}
+
+/* 深色模式链接 */
+html.dark .content a {
+  color: #ff9900 !important;
+}
+
+html.dark .content a:hover {
+  color: #ffaa33 !important;
+}
+
+/* 深色模式强调文本 */
+html.dark .content strong {
+  color: #ff9900 !important;
+}
+
+/* 深色模式代码 */
+html.dark .content code {
+  background-color: #2a2a2a !important;
+  color: #ff9900 !important;
+  border: 1px solid #444 !important;
+}
+
+/* 深色模式图片 */
+html.dark .content img {
+  box-shadow: 0 8px 32px rgba(255, 153, 0, 0.15) !important;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
   .content {
     padding: 1rem !important;
@@ -236,42 +221,9 @@ html.dark .content ul li:hover {
   .content ol li,
   .content ul li {
     padding: 1rem !important;
-    margin-bottom: 1.5rem !important;
   }
   
   .content blockquote {
-    padding: 1rem 1.5rem !important;
+    padding: 1rem !important;
   }
-  
-  .content h3 {
-    font-size: 1.1rem !important;
-    padding: 0.8rem 1rem !important;
-  }
-}
-
-/* 12. 加载动画 */
-.content {
-  animation: fadeInUp 0.8s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 13. 特殊效果 */
-.content ol li:nth-child(odd),
-.content ul li:nth-child(odd) {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.08), rgba(255, 153, 0, 0.03)) !important;
-}
-
-.content ol li:nth-child(even),
-.content ul li:nth-child(even) {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.05), rgba(255, 153, 0, 0.02)) !important;
 }
