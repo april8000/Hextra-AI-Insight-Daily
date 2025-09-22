@@ -1,13 +1,11 @@
-# Hugo configuration file
 baseURL: https://april8000.github.io/Hextra-AI-Insight-Daily/
-title: AI洞察日报 - april8000
-
-# 使用传统主题方式
-theme: hextra
-
+languageCode: zh-cn
+title: AI洞察日报
 enableEmoji: true
-enableGitInfo: true
-hasCJKLanguage: true
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
 
 markup:
   goldmark:
@@ -18,36 +16,15 @@ markup:
 
 menu:
   main:
-    - name: AI日报
-      pageRef: /
+    - name: 首页
+      url: /
       weight: 1
     - name: GitHub
-      url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
+      url: https://github.com/april8000/Hextra-AI-Insight-Daily
       weight: 2
-      params:
-        icon: github
-    - name: Search
-      weight: 3
-      params:
-        type: search
 
 params:
   navbar:
     displayTitle: true
-    displayLogo: false
-
   footer:
-    displayCopyright: false
     displayPoweredBy: true
-
-  search:
-    enable: true
-    type: flexsearch
-
-defaultContentLanguage: zh
-languages:
-  zh:
-    languageCode: zh-CN
-    contentDir: content/cn
-    languageName: 简体中文
-    weight: 1
