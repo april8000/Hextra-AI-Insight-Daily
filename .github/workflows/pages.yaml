@@ -1,60 +1,34 @@
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
 name: Deploy Hugo site to Pages
 
 on:
-  workflow_run:
-    workflows: ["Update Content from Backend Dispatch"]
-    types:
-      - completed
-      
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  schedule:
-    - cron: '0 */4 * * *' # Runs every 4 hours
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
-# Default to bash
 defaults:
   run:
     shell: bash
 
-env:
-  TZ: Asia/Shanghai
-  
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.139.0  # 🔧 使用最新版本的Hugo
+      HUGO_VERSION: 0.131.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # fetch all history for .GitInfo and .Lastmod
-          submodules: false  # 禁用子模块检出
-      
-      - name: Clean up problematic directories
-        run: |
-          # 删除可能导致问题的目录和文件
-          rm -rf source-repo || true
-          rm -f .gitmodules || true
-          echo "Cleaned up problematic directories"
+          fetch-depth: 0
+          submodules: false
       
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -65,101 +39,50 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Setup Hugo (Latest Version)
+      - name: Setup Hugo
         run: |
-          echo "=== 安装最新版Hugo ==="
-          
-          # 删除任何现有的Hugo
-          sudo apt-get remove hugo -y || true
-          
-          # 下载并安装最新的Hugo Extended版本
-          HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-          echo "下载Hugo: $HUGO_URL"
-          
-          wget -O hugo.tar.gz "$HUGO_URL"
-          tar -xzf hugo.tar.gz
-          sudo mv hugo /usr/local/bin/
-          sudo chmod +x /usr/local/bin/hugo
-          
-          # 验证Hugo版本
-          echo "=== Hugo版本验证 ==="
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+          sudo dpkg -i ${{ runner.temp }}/hugo.deb
           hugo version
-          
-          # 检查是否支持try函数
-          echo "=== 测试Hugo功能 ==="
-          hugo env
       
-      - name: Download and setup Hextra theme traditionally
+      - name: Clean and prepare
         run: |
-          echo "=== 设置传统主题目录 ==="
-          
-          # 创建themes目录并下载Hextra主题
-          mkdir -p themes
-          cd themes
-          
-          # 下载Hextra主题的最新稳定版本
-          echo "下载Hextra主题..."
-          git clone --depth 1 https://github.com/imfing/hextra.git hextra
-          
-          echo "=== 检查主题目录结构 ==="
-          ls -la hextra/
-          ls -la hextra/layouts/ || echo "layouts目录不存在"
-          
-          cd ..
-          
-          # 确保内容目录存在
-          if [ ! -d "content" ]; then
-            echo "创建默认内容目录..."
-            mkdir -p content
-            echo '---\ntitle: "AI洞察日报"\n---\n\n# AI洞察日报\n\n欢迎访问AI洞察日报！\n' > content/_index.md
+          rm -rf source-repo || true
+          rm -f .gitmodules || true
+          mkdir -p content
+          if [ ! -f "content/_index.md" ]; then
+            cat > content/_index.md << 'EOF'
+---
+title: "AI洞察日报"
+---
+
+# AI洞察日报
+
+欢迎访问AI洞察日报！
+EOF
           fi
-          
-          echo "=== 文件结构检查完成 ==="
-          ls -la
       
-      - name: Build with Hugo
+      - name: Hugo build
         env:
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
-          echo "=== 开始构建Hugo站点 ==="
-          
-          # 检查配置文件
-          echo "=== Hugo配置检查 ==="
-          hugo config || echo "配置检查失败"
-          
-          echo "=== 详细构建过程 ==="
-          hugo \
-            --gc --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/" \
-            --verbose \
-            --logLevel info
-          
-          echo "=== 构建完成，检查输出 ==="
-          if [ -d "public" ]; then
-            echo "public目录内容："
-            ls -la public/
-            echo "public目录大小："
-            du -sh public/
-          else
-            echo "Error: public目录不存在"
+          if [ -f "go.mod" ]; then
+            hugo mod download
+            hugo mod tidy
+          fi
+          hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+          if [ ! -d "public" ] || [ -z "$(ls -A public 2>/dev/null)" ]; then
+            echo "构建失败：public目录为空"
             exit 1
           fi
-          
-          # 检查是否有内容
-          if [ -z "$(ls -A public)" ]; then
-            echo "Error: public目录为空"
-            exit 1
-          fi
-          
-          echo "=== 构建成功！ ==="
+          echo "构建成功！"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
