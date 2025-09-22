@@ -1,0 +1,222 @@
+/* ==========================================================================
+   AI洞察日报 - 自定义样式
+   基于原作者项目的美化设计
+   ========================================================================== */
+
+/* 1. 隐藏页面第一个h1标题，因为我们在Front Matter中已经定义了标题 */
+h1:first-of-type {
+  display: none;
+}
+
+/* 2. 统一代码字体 */
+code, kbd, samp, pre {
+  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,liberation mono,courier new,monospace;
+}
+
+/* 3. 图片样式优化 */
+.content :where(img):not(:where([class~=not-prose],[class~=not-prose] *)) {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: .375rem;
+  max-width: 100%;
+  min-width: 100%;
+  height: clamp(250px, 35vh, 500px);
+  object-fit: cover;
+}
+
+.content table tbody tr td :where(img):not(:where([class~=not-prose],[class~=not-prose] *)){
+  height: auto;
+}
+
+/* 4. 视频样式优化 */
+video {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: .375rem;
+  max-width: 100%;
+  min-width: 100%;
+}
+
+/* 5. 换行优化 */
+br {
+    display: block;
+    content: "";
+    margin-top: 20px;
+}
+
+/* 6. 页脚样式优化 */
+footer .hx-max-w-screen-xl{
+  max-width: 100%;
+}
+
+.footer-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 0.5rem;
+  width: 100%;
+  flex-direction: column;
+}
+
+.footer-container {
+  text-align: center;
+}
+
+/* 7. 文本换行优化 */
+.content :where(p):not(:where([class~=not-prose],[class~=not-prose] *)) {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.content :where(code):not(:where(.hextra-code-block code,[class~=not-prose],[class~=not-prose] *)) {
+  border-radius: 4px;
+  font-style: normal;
+  padding: 0.2em 0.4em;
+  font-size: 0.875em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* 8. 引用块中的链接隐藏（保持原作者的设计） */
+.content blockquote p a {
+    display: none;
+}
+
+/* ==========================================================================
+   暗色主题样式 - 橙色主题色调
+   ========================================================================== */
+
+/* 9. 核心色调定义 */
+html.dark {
+  --primary-hue: 36deg;
+  --primary-saturation: 100%;
+  --primary-lightness: 50%;
+}
+
+/* 10. 基础布局颜色 */
+.hextra-footer:is(html[class~=dark] *),
+.nav-container:is(html[class~=dark] *),
+body:is(html[class~=dark] *) {
+  background-color: #1c1c1c;
+}
+
+.nav-container-blur:is(html[class~=dark] *) {
+    background-color: rgba(28, 28, 28, 0.8) !important;
+}
+
+/* 11. 导航栏样式 */
+.nav-container a:is(html[class~=dark] *),
+.nav-container svg:is(html[class~=dark] *) {
+  color: #ffffff;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-container a:hover:is(html[class~=dark] *),
+.nav-container a:hover svg:is(html[class~=dark] *),
+.nav-container button:hover svg:is(html[class~=dark] *) {
+  color: #ff9900 !important;
+}
+
+.hamburger-menu:is(html[class~=dark] *) {
+  color: #ffffff;
+}
+.hamburger-menu:hover:is(html[class~=dark] *) {
+  color: #ff9900 !important;
+}
+
+/* 12. 代码样式美化 */
+.content :where(code):not(:where(.hextra-code-block code,[class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  background-color: #2a2a2a;
+  color: #ff9900;
+  border: 1px solid #444;
+}
+
+.hextra-code-block pre:is(html[class~=dark] *),
+.hextra-code-block .filename:is(html[class~=dark] *) {
+  border: 1px solid #444;
+}
+
+.hextra-code-block pre code span:is(html[class~=dark] *),
+.hextra-code-block pre code:is(html[class~=dark] *) {
+  font-style: normal !important;
+  color: #f0f0f0;
+}
+
+/* 13. 内容区域样式 */
+.content :where(a):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *),
+.content :where(blockquote):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #ff9900;
+  border-left-color: #ff9900;
+}
+
+.content :where(a):not(:where([class~=not-prose],[class~=not-prose] *)):hover:is(html[class~=dark] *) {
+color: #fff;
+  text-decoration: underline;
+}
+
+.content :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  border-color: #444;
+}
+
+.content :where(h3):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+    color: #f90;
+}
+
+/* 14. 组件样式 */
+.hextra-card:is(html[class~=dark] *) {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #f0f0f0;
+}
+
+.hextra-card:hover:is(html[class~=dark] *) {
+  border-color: #ff9900;
+  box-shadow: 0 0 15px rgba(255, 153, 0, 0.2);
+}
+
+/* 15. 侧边栏样式 */
+.sidebar-active-item:is(html[class~=dark] *) {
+  color: #ff9900 !important;
+  font-weight: bold;
+  background-color: rgba(255, 153, 0, 0.1);
+  border-radius: 4px;
+}
+
+.dark\:hover\:hx-bg-primary-100\/5:hover:is(html[class~=dark] *) {
+    background-color: rgba(255, 153, 0, 0.1);
+}
+
+.sidebar-container a:hover:is(html[class~=dark] *) {
+  color: #ff9900;
+}
+
+.sidebar-container a:is(html[class~=dark] *) {
+  color: #fff;
+}
+
+/* 16. 搜索样式 */
+.search-wrapper li .active:is(html[class~=dark] *) {
+    background-color: rgba(255, 153, 0, 0.15);
+}
+
+.search-wrapper .match:is(html[class~=dark] *) {
+    color: #ff9900;
+}
+
+.search-input:is(html[class~=dark] *) {
+  border-color: #444;
+}
+
+.search-input:focus:is(html[class~=dark] *) {
+  border-color: #ff9900;
+}
+
+/* 17. 强调文本样式 */
+strong:is(html[class~=dark] *) {
+    color: #f90;
+    padding: 3px;
+}
