@@ -1,129 +1,37 @@
-# Hugo configuration file
-title: 何夕2077的AI资讯日报 | 精选AI新闻与工具 | 洞悉AI前沿动态
+baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
+title: "AI洞察日报"
 
-timezone: Asia/Shanghai
-enableRobotsTXT: true
-enableGitInfo: true
-enableEmoji: true
-hasCJKLanguage: true
-enableInlineShortcodes: true
+theme: hextra
 
-services:  
-  googleAnalytics:
-    ID: "G-SECWWMY8WQ"
-
-# 取消注释并添加正确的输出格式
-outputs:
-  home: [HTML, RSS]
-  page: [HTML]
-  section: [HTML, RSS]
-
-# import hextra as module
 module:
   imports:
     - path: github.com/imfing/hextra
 
 markup:
-  # allow raw html
   goldmark:
     renderer:
       unsafe: true
-
-  # enable hextra syntax highlight
   highlight:
     noClasses: false
 
 menu:
   main:
-    - identifier: search
-      name: 搜索
-      weight: 10
-      params:
-        type: search
-    - identifier: documentation
-      name: AI日报
-      pageRef: /
+    - name: AI日报
+      pageRef: /cn
       weight: 1
-    - identifier: about      
-      name: 关于我 ↗
-      url: "https://github.com/justlovemaki"
+    - name: GitHub
+      url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
       weight: 2
-    - identifier: github   
-      name: 同性交友
-      weight: 3
-      url: "https://github.com/justlovemaki/CloudFlare-AI-Insight-Daily"
       params:
         icon: github
 
-
 params:
-  adsenseId: "ca-pub-8136412975724403"
-  ahrefsKey: "Qe0ZpZJ6/W8rgMFnLgk4kg"
-  description: 个人每日整理的AI资讯站。我们为您过滤信息噪音，只提供最精选的AI新闻、最实用的AI工具与AI教程，助您高效获取人工智能领域的前沿动态
-  descriptionEn: Your daily source for curated AI news, practical tools, and actionable tutorials to master Artificial Intelligence;
-  descriptionJA: 個人が毎日更新するAIニュースサイト。情報のノイズを取り除き、厳選したAIニュース、実用的なツールとチュートリアルだけをお届けします。人工知能の最先端を効率よくキャッチアップするお手伝いをします;
-  logo: "images/logo-dark.png"
-  
-  author:
-    name: "何夕2077的AI资讯日报 | 精选AI新闻与工具 | 洞悉AI前沿动态"
-    bio: "去海边整点薯条"
-    email: "justlikemaki@qq.com"
-    website: "https://ai.hubtoday.app/about/"
-    social:
-      - name: "GitHub"
-        url: "https://github.com/justlovemaki"
-        
-  publisher:
-    type: "Person" 
-    name: "何夕2077的AI资讯日报 | 精选AI新闻与工具 | 洞悉AI前沿动态"
-    url: "https://ai.hubtoday.app/about/"
-    sameAs:
-      - "https://github.com/justlovemaki"
-      
-  displayUpdatedDate: true
-  dateFormat: "2006/01/02 15:04:05"
-
   navbar:
-    displayTitle: false
-    displayLogo: true
-    logo:
-      path: images/logo.png
-      dark: images/logo-dark.png
-      width: 175
-      height: 50
-
-
+    displayTitle: true
   footer:
-    displayCopyright: false
-    displayPoweredBy: false
+    displayPoweredBy: true
 
-  # blog:
-  #   list:
-  #     displayTags: true  
-  
-  page:
-    # full (100%), wide (90rem), normal (1280px)
-    width: wide
-
-    # 搜索
-  search:
-    enable: true
-    type: flexsearch
-    flexsearch:
-      # 按以下内容索引页面：content | summary | heading | title
-      index: content
-
-  comments:
-    enable: false
-    type: giscus
-
-    giscus:
-      repo: justlovemaki/Hextra-AI-Insight-Daily
-      repoId: R_kgDOO_2Owg
-      category: Announcements
-      categoryId: DIC_kwDOO_2Ows4Cr2Q0
-
-
+# 语言配置
 defaultContentLanguage: zh
 languages:
   zh:
@@ -131,14 +39,4 @@ languages:
     contentDir: content/cn
     languageName: 简体中文
     weight: 1
-  en:
-    contentDir: content/en
-    languageName: English
-    title: Hex2077's AI Daily | AI News | AI Tools | AI Insights
-    weight: 2
-  ja:
-    contentDir: content/ja
-    languageName: 日本語
-    title: 何夕2077AIデイリー | 厳選AIニュース＆ツール | 最先端のAIインサイト
-    weight: 3
-    baseURL: 'https://april8000.github.io/Hextra-AI-Insight-Daily'
+
