@@ -1,11 +1,16 @@
 baseURL: "https://april8000.github.io/Hextra-AI-Insight-Daily/"
-title: "AI洞察日报"
+title: "AI洞察日报 | 精选AI新闻与深度分析"
 
 theme: hextra
 
 module:
   imports:
     - path: github.com/imfing/hextra
+
+# 添加taxonomies支持以显示标签和分类
+taxonomies:
+  tag: tags
+  category: categories
 
 markup:
   goldmark:
@@ -19,9 +24,15 @@ menu:
     - name: AI日报
       pageRef: /cn
       weight: 1
+    - name: 标签
+      pageRef: /cn/tags
+      weight: 2  
+    - name: 分类
+      pageRef: /cn/categories
+      weight: 3
     - name: GitHub
       url: "https://github.com/april8000/Hextra-AI-Insight-Daily"
-      weight: 2
+      weight: 4
       params:
         icon: github
 
@@ -32,8 +43,8 @@ params:
     displayPoweredBy: true
   search:
     enable: true
-  
-  # 确保侧边栏显示
+    
+  # 确保侧边栏和内容显示
   page:
     sidebar:
       enable: true
