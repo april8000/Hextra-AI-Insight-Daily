@@ -185,3 +185,59 @@ html.dark .content img {
     padding: 1rem !important;
   }
 }
+/* 
+ * ===========================================
+ * 日报页面优化样式
+ * ===========================================
+ */
+
+/* 隐藏blockquote的橙色样式，使用简洁灰色 */
+.content :where(blockquote):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #d0d0d0 !important;
+  background-color: #2a2a2a;
+  border-left: 4px solid #555 !important;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+}
+
+/* 优化h2分类标题样式（产品与功能更新、前沿研究等） */
+.content :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #ffffff !important;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #444 !important;
+}
+
+/* 优化有序列表样式（新闻列表） */
+.content :where(ol):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.content :where(ol li):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  margin-bottom: 0.75rem;
+  color: #e0e0e0;
+}
+
+/* 优化新闻标题加粗样式 */
+.content :where(ol li strong):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0 !important;
+}
+
+/* 优化链接样式 - 使用蓝色而不是橙色 */
+.content :where(ol li a):not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #58a6ff !important;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.content :where(ol li a):hover:not(:where([class~=not-prose],[class~=not-prose] *)):is(html[class~=dark] *) {
+  color: #79c0ff !important;
+  text-decoration: underline;
+}
