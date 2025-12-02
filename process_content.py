@@ -235,11 +235,11 @@ cascade:
     print("✅ 防弹版索引文件已创建")
 
 def process_daily_content(source_file_path, target_file):
-    # 读取原始内容
+    # 读取 Worker 生成的完整日报内容（包含摘要和所有分类）
     with open(source_file_path, "r", encoding="utf-8") as f:
         content = f.read()
     
-    # 提取日期
+    # 从文件名中提取日期
     filename = os.path.basename(source_file_path)
     date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
     if not date_match:
@@ -248,72 +248,8 @@ def process_daily_content(source_file_path, target_file):
     date_part = date_match.group(1)
     date_display = date_part.replace('-', '/')
     
-    # 智能提取摘要内容
-    lines = content.split('\n')
-    summary_lines = []
-    
-    for line in lines:
-        line = line.strip()
-        if line and len(line) > 15:
-            if (not line.startswith('#') and 
-                not line.startswith('```') and 
-                not line.startswith('---') and
-                not re.match(r'^\d+\.', line) and 
-                not line.startswith('- ') and 
-                not line.startswith('* ') and
-                not line.startswith('>')):
-                summary_lines.append(line)
-                if len(summary_lines) >= 3:
-                    break
-    
-    if summary_lines:
-        summary_content = '\n'.join(summary_lines[:3])
-    else:
-        summary_content = f"{date_display}的AI行业动态汇总，包含最新产品发布、技术突破、行业投资等重要资讯。"
-    
-    # 分类新闻内容
-    product_news = []
-    research_news = []
-    industry_news = []
-    opensource_news = []
-    social_news = []
-    
-    current_item = ""
-    for line in lines:
-        if line.strip() and (re.match(r'^\d+\.', line) or line.startswith('- ') or line.startswith('* ')):
-            if current_item and len(current_item.strip()) > 20:
-                if re.search(r'产品|功能|更新|发布|工具|平台|API|服务|模型|应用', current_item, re.IGNORECASE):
-                    product_news.append(current_item.strip())
-                elif re.search(r'研究|论文|学术|科学|实验|算法|框架', current_item, re.IGNORECASE):
-                    research_news.append(current_item.strip())
-                elif re.search(r'投资|融资|IPO|商业|公司|估值|行业|市场|影响|展望', current_item, re.IGNORECASE):
-                    industry_news.append(current_item.strip())
-                elif re.search(r'开源|GitHub|代码|开发者|项目|库|仓库', current_item, re.IGNORECASE):
-                    opensource_news.append(current_item.strip())
-                elif re.search(r'社交|媒体|分享|讨论|用户|社区|推特|微博', current_item, re.IGNORECASE):
-                    social_news.append(current_item.strip())
-                else:
-                    product_news.append(current_item.strip())
-            current_item = line
-        elif line.strip() and current_item:
-            current_item += '\n' + line
-    
-    # 处理最后一个条目
-    if current_item and len(current_item.strip()) > 20:
-        if re.search(r'产品|功能|更新|发布|工具|平台|API|服务|模型|应用', current_item, re.IGNORECASE):
-            product_news.append(current_item.strip())
-        elif re.search(r'研究|论文|学术|科学|实验|算法|框架', current_item, re.IGNORECASE):
-            research_news.append(current_item.strip())
-        elif re.search(r'投资|融资|IPO|商业|公司|估值|行业|市场|影响|展望', current_item, re.IGNORECASE):
-            industry_news.append(current_item.strip())
-        elif re.search(r'开源|GitHub|代码|开发者|项目|库|仓库', current_item, re.IGNORECASE):
-            opensource_news.append(current_item.strip())
-        elif re.search(r'社交|媒体|分享|讨论|用户|社区|推特|微博', current_item, re.IGNORECASE):
-            social_news.append(current_item.strip())
-        else:
-            product_news.append(current_item.strip())
-    
-    # 创建Front Matter
+    # 直接使用完整日报，而不是重新拆分和重组摘要/分类
+    # 这里只为 Hugo 补充 Front Matter，正文保持与邮件版/原始 Markdown 完全一致
     front_matter = f"""---
 linkTitle: {date_part[5:]}-日报
 title: {date_part[5:]}-日报-AI资讯日报
@@ -325,52 +261,8 @@ description: "个人每日整理的AI资讯站。我们为您过滤信息噪音�
 
 """
     
-    # 创建内容主体
-    content_body = f"""## AI资讯日报 {date_display}
-
->  `AI资讯` | `每日早读` | `全网数据聚合` | `前沿科学探索` | `行业自由发声` | `开源创新力量` | `AI与人类未来` | [访问网页版↗️](https://april8000.github.io/Hextra-AI-Insight-Daily/)
-
-
-
-### **今日摘要**
-
-```
-{summary_content}
-```
-
-
-"""
-    
-    # 添加分类内容
-    if product_news:
-        content_body += "\n### 产品与功能更新\n"
-        for i, news in enumerate(product_news[:5], 1):
-            clean_news = re.sub(r'^\d+\.\s*', '', news)
-            content_body += f"{i}.  {clean_news}\n"
-    
-    if research_news:
-        content_body += "\n### 前沿研究\n"
-        for i, news in enumerate(research_news[:3], 1):
-            clean_news = re.sub(r'^\d+\.\s*', '', news)
-            content_body += f"{i}.  {clean_news}\n"
-    
-    if industry_news:
-        content_body += "\n### 行业展望与社会影响\n"
-        for i, news in enumerate(industry_news[:3], 1):
-            clean_news = re.sub(r'^\d+\.\s*', '', news)
-            content_body += f"{i}.  {clean_news}\n"
-    
-    if opensource_news:
-        content_body += "\n### 开源TOP项目\n"
-        for i, news in enumerate(opensource_news[:4], 1):
-            clean_news = re.sub(r'^\d+\.\s*', '', news)
-            content_body += f"{i}.  {clean_news}\n"
-    
-    if social_news:
-        content_body += "\n### 社媒分享\n"
-        for i, news in enumerate(social_news[:5], 1):
-            clean_news = re.sub(r'^\d+\.\s*', '', news)
-            content_body += f"{i}.  {clean_news}\n"
+    # Hugo 内容主体：直接接上完整日报 Markdown
+    content_body = content
     
     # 写入文件
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
