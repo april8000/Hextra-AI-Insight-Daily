@@ -45,23 +45,24 @@ h1:first-of-type {
   border: 1px solid rgba(255, 153, 0, 0.3) !important;
 }
 
-/* 新闻条目样式 */
+/* 新闻条目样式（去掉卡片边框和背景） */
 .content ol li,
 .content ul li {
-  margin-bottom: 1.5rem !important;
-  padding: 1.2rem !important;
-  background: rgba(255, 153, 0, 0.02) !important;
-  border-radius: 8px !important;
-  border-left: 3px solid var(--primary-color) !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 1.2rem !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-left: none !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 .content ol li:hover,
 .content ul li:hover {
-  background: rgba(255, 153, 0, 0.05) !important;
-  transform: translateX(4px) !important;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15) !important;
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* 分类标题样式 */
@@ -129,16 +130,16 @@ html.dark .content blockquote code {
 
 html.dark .content ol li,
 html.dark .content ul li {
-  background: rgba(255, 153, 0, 0.08) !important;
-  border-left-color: #ff9900 !important;
+  background: transparent !important;
+  border-left: none !important;
   color: #f0f0f0 !important;
-  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.1) !important;
+  box-shadow: none !important;
 }
 
 html.dark .content ol li:hover,
 html.dark .content ul li:hover {
-  background: rgba(255, 153, 0, 0.15) !important;
-  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.25) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 html.dark .content h2,
@@ -178,7 +179,7 @@ html.dark .content img {
   
   .content ol li,
   .content ul li {
-    padding: 1rem !important;
+    padding: 0 !important;
   }
   
   .content blockquote {
